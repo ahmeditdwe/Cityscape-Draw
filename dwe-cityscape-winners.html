@@ -454,6 +454,67 @@
             border-left: 4px solid #E86425;
         }
 
+        .excluded-winners-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #fff3cd;
+            border-radius: 10px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .excluded-winners-title {
+            font-size: 1.3em;
+            color: #856404;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .excluded-winner-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 3px solid #ffc107;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInLeft 0.3s ease;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .excluded-winner-name {
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+        }
+
+        .excluded-winner-badge {
+            background: #ffc107;
+            color: #856404;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .excluded-winner-reason {
+            color: #856404;
+            font-size: 0.9em;
+        }
+
         .names-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -1139,6 +1200,14 @@
                 padding: 10px 20px;
                 font-size: 0.9em;
             }
+            .excluded-winner-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+            }
+            .excluded-winner-reason {
+                font-size: 0.85em;
+            }
         }
 
         /* Print styles */
@@ -1683,7 +1752,7 @@
                     const { uniqueParticipants, duplicatesCount } = removeDuplicatesByMobile(jsonData);
                     
                     // Exclude previous winners
-                    const eligibleParticipants = excludePreviousWinners(uniqueParticipants);
+                    const { eligibleParticipants, excludedWinners } = excludePreviousWinners(uniqueParticipants);
                     
                     if (eligibleParticipants.length === 0) {
                         showError('No eligible participants after excluding previous winners! • لا يوجد مشاركين مؤهلين بعد استبعاد الفائزين السابقين!');
@@ -1691,7 +1760,7 @@
                     }
                     
                     allParticipants = eligibleParticipants;
-                    displayAllNames(eligibleParticipants, duplicatesCount, uniqueParticipants.length - eligibleParticipants.length);
+                    displayAllNames(eligibleParticipants, duplicatesCount, excludedWinners);
                     
                     // Save participants count to Firestore
                     saveDayInfo(eligibleParticipants.length);
@@ -1742,16 +1811,38 @@
                 k.toLowerCase().includes('هاتف')
             );
 
+            const nameKey = Object.keys(participants[0] || {}).find(k => 
+                k.toLowerCase().includes('name') || k.toLowerCase().includes('اسم')
+            ) || Object.keys(participants[0] || {})[0];
+
             if (!mobileKey || previousWinners.length === 0) {
-                return participants;
+                return { eligibleParticipants: participants, excludedWinners: [] };
             }
 
-            const winnerMobiles = new Set(previousWinners.map(w => w.mobile));
-
-            return participants.filter(participant => {
-                const mobile = participant[mobileKey];
-                return mobile && !winnerMobiles.has(mobile);
+            const winnerMobilesMap = new Map();
+            previousWinners.forEach(winner => {
+                winnerMobilesMap.set(winner.mobile, winner);
             });
+
+            const eligibleParticipants = [];
+            const excludedWinners = [];
+
+            participants.forEach(participant => {
+                const mobile = participant[mobileKey];
+                if (mobile && winnerMobilesMap.has(mobile)) {
+                    // This person is a previous winner
+                    const previousWinner = winnerMobilesMap.get(mobile);
+                    excludedWinners.push({
+                        name: participant[nameKey] || 'Unknown',
+                        wonOn: previousWinner.day,
+                        mobile: mobile
+                    });
+                } else if (mobile) {
+                    eligibleParticipants.push(participant);
+                }
+            });
+
+            return { eligibleParticipants, excludedWinners };
         }
 
         // Save day info to Firestore
@@ -1775,7 +1866,7 @@
             }
         }
 
-        function displayAllNames(participants, duplicatesCount, excludedCount) {
+        function displayAllNames(participants, duplicatesCount, excludedWinners) {
             document.querySelector('.upload-section').style.display = 'none';
             namesSection.style.display = 'block';
             
@@ -1786,17 +1877,49 @@
             
             if (duplicatesCount > 0) {
                 infoHtml += `⚠️ <strong>${duplicatesCount}</strong> duplicate${duplicatesCount > 1 ? 's' : ''} removed (same mobile number)<br>
-                    <span style="font-size: 0.9em;">تم إزالة <strong>${duplicatesCount}</strong> مكرر (نفس رقم الجوال)</span><br>`;
-            }
-            
-            if (excludedCount > 0) {
-                infoHtml += `🚫 <strong>${excludedCount}</strong> previous winner${excludedCount > 1 ? 's' : ''} excluded<br>
-                    <span style="font-size: 0.9em;">تم استبعاد <strong>${excludedCount}</strong> فائز سابق</span>`;
+                    <span style="font-size: 0.9em;">تم إزالة <strong>${duplicatesCount}</strong> مكرر (نفس رقم الجوال)</span>`;
             }
             
             if (infoHtml) {
                 duplicatesInfo.style.display = 'block';
                 duplicatesInfo.innerHTML = infoHtml;
+            } else {
+                duplicatesInfo.style.display = 'none';
+            }
+
+            // Display excluded winners (previous winners)
+            if (excludedWinners && excludedWinners.length > 0) {
+                let excludedHtml = `
+                    <div class="excluded-winners-section">
+                        <div class="excluded-winners-title">
+                            🚫 Excluded Previous Winners • الفائزون المستبعدون
+                        </div>
+                        <div style="font-size: 0.95em; color: #856404; margin-bottom: 15px;">
+                            The following participants won before and are excluded from this draw:
+                            <br>
+                            <span style="direction: rtl; display: block;">المشاركون التاليون فازوا سابقاً وتم استبعادهم من هذا السحب:</span>
+                        </div>
+                `;
+                
+                excludedWinners.forEach((excluded, index) => {
+                    excludedHtml += `
+                        <div class="excluded-winner-item" style="animation-delay: ${index * 0.1}s">
+                            <div style="font-size: 1.5em;">🏆</div>
+                            <div class="excluded-winner-name">${excluded.name}</div>
+                            <div class="excluded-winner-badge">${excluded.wonOn}</div>
+                            <div class="excluded-winner-reason">Already Won • فاز سابقاً</div>
+                        </div>
+                    `;
+                });
+                
+                excludedHtml += `</div>`;
+                
+                if (duplicatesInfo.innerHTML) {
+                    duplicatesInfo.innerHTML += excludedHtml;
+                } else {
+                    duplicatesInfo.style.display = 'block';
+                    duplicatesInfo.innerHTML = excludedHtml;
+                }
             }
             
             namesGrid.innerHTML = '';
