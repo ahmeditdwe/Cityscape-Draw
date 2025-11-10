@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>City Scape 2025 Winner - Dar Wa Emaar</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            background: #F27935;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #F27935 0%, #E86425 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(242, 121, 53, 0.4);
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.3; }
+        }
+
+        .logo-container {
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+            display: inline-block;
+            background: black;
+            padding: 20px 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .logo-svg {
+            width: 180px;
+            height: auto;
+            display: block;
+        }
+
+        .bilingual-title {
+            position: relative;
+            z-index: 2;
+        }
+
+        .title-en {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.8em;
+            margin: 10px 0;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            font-weight: 700;
+        }
+
+        .title-ar {
+            font-family: 'Cairo', sans-serif;
+            font-size: 2.5em;
+            margin: 10px 0;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.95;
+            margin-top: 10px;
+        }
+
+        .upload-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 50px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .names-section {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 50px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 40px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .names-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .names-title-en {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5em;
+            color: #333;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .names-title-ar {
+            font-family: 'Cairo', sans-serif;
+            font-size: 2.2em;
+            color: #555;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .total-participants {
+            font-size: 1.5em;
+            color: #F27935;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .duplicates-info {
+            font-size: 1.2em;
+            color: #E86425;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fff8f4;
+            border-radius: 10px;
+            border-left: 4px solid #E86425;
+        }
+
+        .names-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 15px;
+            margin-bottom: 40px;
+        }
+
+        .names-grid::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .names-grid::-webkit-scrollbar-track {
+            background: #e8e8e8;
+            border-radius: 10px;
+        }
+
+        .names-grid::-webkit-scrollbar-thumb {
+            background: #F27935;
+            border-radius: 10px;
+        }
+
+        .names-grid::-webkit-scrollbar-thumb:hover {
+            background: #E86425;
+        }
+
+        .name-item {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            border-left: 4px solid #F27935;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+            transition: all 0.3s ease;
+            text-align: center;
+            animation: fadeInScale 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .name-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(242, 121, 53, 0.2);
+        }
+
+        .draw-section {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 50px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 40px;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .draw-display {
+            background: linear-gradient(135deg, #F27935 0%, #E86425 100%);
+            padding: 80px 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .draw-name {
+            font-size: 4em;
+            color: white;
+            font-weight: 700;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            font-family: 'Poppins', 'Cairo', sans-serif;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .draw-name.spinning {
+            animation: spin 0.1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translateY(0); opacity: 1; }
+            50% { transform: translateY(-30px); opacity: 0.5; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        .choose-winner-btn {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a1a1a;
+            padding: 25px 60px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.5);
+            font-weight: 700;
+            font-family: 'Poppins', 'Cairo', sans-serif;
+        }
+
+        .choose-winner-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.6);
+        }
+
+        .choose-winner-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .upload-area {
+            border: 3px dashed #F27935;
+            border-radius: 20px;
+            padding: 70px 30px;
+            background: linear-gradient(135deg, #fff8f4 0%, #fff0e8 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            background: linear-gradient(135deg, #fff0e8 0%, #ffe8dc 100%);
+            border-color: #E86425;
+            transform: scale(1.02);
+        }
+
+        .upload-area.dragover {
+            background: #ffe8dc;
+            border-color: #E86425;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(242, 121, 53, 0.3);
+        }
+
+        .upload-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .upload-text {
+            margin-bottom: 15px;
+        }
+
+        .upload-text-en {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.6em;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .upload-text-ar {
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.5em;
+            color: #555;
+            font-weight: 600;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #F27935 0%, #E86425 100%);
+            color: white;
+            padding: 18px 50px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(242, 121, 53, 0.4);
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(242, 121, 53, 0.5);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .winner-section {
+            display: none;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+            font-weight: 600;
+            margin: 20px 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(76, 175, 80, 0.5);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(40px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .announcement-banner {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a1a1a;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .announcement-banner::before {
+            content: '🎉';
+            position: absolute;
+            font-size: 8em;
+            opacity: 0.1;
+            top: -20px;
+            left: -20px;
+            animation: rotate 10s linear infinite;
+        }
+
+        .announcement-banner::after {
+            content: '🎊';
+            position: absolute;
+            font-size: 8em;
+            opacity: 0.1;
+            bottom: -20px;
+            right: -20px;
+            animation: rotate 10s linear infinite reverse;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .announcement-text-en {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .announcement-text-ar {
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .winner-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 60px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+            border: 3px solid #F27935;
+        }
+
+        .winner-card::before {
+            content: '👑';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 4em;
+            opacity: 0.1;
+            animation: pulse 2s infinite;
+        }
+
+        .winner-trophy {
+            text-align: center;
+            font-size: 8em;
+            margin-bottom: 30px;
+            animation: bounce 2s infinite;
+        }
+
+        .winner-name-section {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #fff8f4 0%, #fff0e8 100%);
+            border-radius: 20px;
+            border-left: 6px solid #F27935;
+        }
+
+        .name-label-en {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .name-label-ar {
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .winner-name {
+            font-size: 3.5em;
+            color: #F27935;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin: 15px 0;
+            font-family: 'Poppins', 'Cairo', sans-serif;
+        }
+
+        .winner-details {
+            margin-bottom: 40px;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            padding: 25px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #f9f9f9 0%, #f5f5f5 100%);
+            border-radius: 15px;
+            border-left: 5px solid #F27935;
+            transition: all 0.3s ease;
+        }
+
+        .detail-row:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(242, 121, 53, 0.2);
+        }
+
+        .detail-icon {
+            font-size: 3em;
+            margin-right: 25px;
+            margin-left: 25px;
+        }
+
+        .detail-content {
+            flex: 1;
+        }
+
+        .detail-label-en {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1em;
+            color: #666;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .detail-label-ar {
+            font-family: 'Cairo', sans-serif;
+            font-size: 1em;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .detail-value {
+            font-size: 1.8em;
+            color: #333;
+            font-weight: 700;
+            font-family: 'Poppins', 'Cairo', sans-serif;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .prize-section {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #F27935 0%, #E86425 100%);
+            border-radius: 20px;
+            color: white;
+            margin-top: 40px;
+            box-shadow: 0 15px 40px rgba(242, 121, 53, 0.4);
+        }
+
+        .prize-icon {
+            font-size: 6em;
+            margin-bottom: 20px;
+            animation: shake 3s infinite;
+        }
+
+        .prize-car-image {
+            max-width: 100%;
+            width: 400px;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            animation: shake 3s infinite;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .prize-icon-fallback {
+            display: none;
+            text-align: center;
+            width: 100%;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+
+        .prize-label-en {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            font-weight: 600;
+            opacity: 0.95;
+        }
+
+        .prize-label-ar {
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .prize-text-en {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.2em;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            margin-bottom: 15px;
+        }
+
+        .prize-text-ar {
+            font-family: 'Cairo', sans-serif;
+            font-size: 2em;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #F27935;
+            font-size: 1.5em;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .error {
+            background: linear-gradient(135deg, #fee 0%, #fdd 100%);
+            color: #c33;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 6px solid #c33;
+            font-size: 1.1em;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #F27935;
+            position: absolute;
+            animation: confettiFall 3s linear infinite;
+        }
+
+        @keyframes confettiFall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Large screens - compact layout */
+        @media (min-width: 1200px) {
+            .winner-card {
+                padding: 40px;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+                align-items: start;
+            }
+
+            .winner-trophy {
+                grid-column: 1 / -1;
+                font-size: 5em;
+                margin-bottom: 10px;
+            }
+
+            .winner-name-section {
+                grid-column: 1 / -1;
+                margin-bottom: 20px;
+                padding: 20px;
+            }
+
+            .winner-name {
+                font-size: 2.8em;
+            }
+
+            .winner-details {
+                margin-bottom: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .detail-row {
+                padding: 20px;
+                margin-bottom: 0;
+            }
+
+            .detail-value {
+                font-size: 1.5em;
+            }
+
+            .prize-section {
+                padding: 30px;
+                margin-top: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .prize-icon {
+                font-size: 5em;
+                margin-bottom: 15px;
+            }
+
+            .prize-car-image {
+                width: 100%;
+                max-width: 350px;
+                margin-bottom: 15px;
+            }
+
+            .prize-text-en {
+                font-size: 1.8em;
+                margin-bottom: 10px;
+            }
+
+            .prize-text-ar {
+                font-size: 1.6em;
+            }
+
+            .announcement-banner {
+                padding: 25px;
+            }
+
+            .announcement-text-en {
+                font-size: 1.8em;
+            }
+
+            .announcement-text-ar {
+                font-size: 1.6em;
+            }
+        }
+
+        /* Extra large screens */
+        @media (min-width: 1600px) {
+            .container {
+                max-width: 1600px;
+            }
+
+            .winner-card {
+                grid-template-columns: 1.2fr 0.8fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title-en { font-size: 2em; }
+            .title-ar { font-size: 1.8em; }
+            .upload-area { padding: 50px 20px; }
+            .winner-card { padding: 40px 20px; }
+            .winner-name { font-size: 2.5em; }
+            .prize-text-en { font-size: 1.6em; }
+            .prize-text-ar { font-size: 1.4em; }
+            .detail-row {
+                flex-direction: column;
+                text-align: center;
+            }
+            .detail-icon {
+                margin: 0 0 15px 0;
+                font-size: 2.5em;
+            }
+            .detail-value {
+                text-align: center;
+                font-size: 1.5em;
+            }
+            .names-grid {
+                grid-template-columns: 1fr;
+                max-height: 300px;
+            }
+            .names-title-en {
+                font-size: 2em;
+            }
+            .names-title-ar {
+                font-size: 1.8em;
+            }
+            .draw-name {
+                font-size: 2.5em;
+            }
+            .draw-display {
+                padding: 60px 20px;
+                min-height: 200px;
+            }
+            .choose-winner-btn {
+                font-size: 1.2em;
+                padding: 20px 40px;
+            }
+            .download-btn {
+                font-size: 1em;
+                padding: 12px 30px;
+            }
+            .prize-car-image {
+                width: 100%;
+                max-width: 280px;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .particles,
+            .header,
+            .upload-section,
+            .names-section,
+            .draw-section,
+            .download-btn,
+            .confetti {
+                display: none !important;
+            }
+
+            .winner-section {
+                display: block !important;
+                page-break-after: avoid;
+            }
+
+            .winner-card {
+                box-shadow: none;
+                border: 2px solid #F27935;
+                page-break-inside: avoid;
+            }
+
+            .announcement-banner {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                page-break-inside: avoid;
+            }
+
+            .prize-section {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                page-break-inside: avoid;
+            }
+
+            .prize-car-image {
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <img src="https://darwaemaar.com/wp-content/uploads/2023/05/DWE-Full-Colour-white.svg" alt="Dar Wa Emaar Logo" class="logo-svg">
+            </div>
+            <div class="bilingual-title">
+                <h1 class="title-en">City Scape 2025 Winner</h1>
+                <h1 class="title-ar">الفائز بسيتي سكيب 2025</h1>
+                <p class="subtitle">🎉 Congratulations • مبروك 🎊</p>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">🏆</div>
+                <div class="upload-text">
+                    <h3 class="upload-text-en">Upload Winner Excel File</h3>
+                    <h3 class="upload-text-ar">تحميل ملف الفائز</h3>
+                </div>
+                <button class="btn" onclick="document.getElementById('fileInput').click()">
+                    📂 Select File • اختر الملف
+                </button>
+                <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFile(event)">
+            </div>
+        </div>
+
+        <div id="loading" class="loading" style="display:none;">
+            <p>🔄 Processing... • جاري المعالجة...</p>
+        </div>
+
+        <div id="error" class="error" style="display:none;"></div>
+
+        <div class="names-section" id="namesSection">
+            <div class="names-header">
+                <h2 class="names-title-en">All Participants</h2>
+                <h2 class="names-title-ar">جميع المشاركين</h2>
+                <div class="total-participants">
+                    <span id="totalCount">0</span> Participants • مشارك
+                </div>
+                <div class="duplicates-info" id="duplicatesInfo" style="display:none;"></div>
+            </div>
+            <div class="names-grid" id="namesGrid"></div>
+            <div style="text-align: center;">
+                <button class="choose-winner-btn" onclick="startDraw()">
+                    🎲 Choose Winner • اختر الفائز 🎲
+                </button>
+            </div>
+        </div>
+
+        <div class="draw-section" id="drawSection">
+            <div class="draw-display">
+                <div class="draw-name" id="drawName">---</div>
+            </div>
+            <button class="choose-winner-btn" id="drawBtn" onclick="startDraw()" disabled>
+                🎲 Drawing... • جاري السحب... 🎲
+            </button>
+        </div>
+
+        <div class="winner-section" id="winnerSection">
+            <div class="announcement-banner">
+                <div class="announcement-text-en">🎊 WINNER ANNOUNCEMENT 🎊</div>
+                <div class="announcement-text-ar">إعلان الفائز</div>
+            </div>
+
+            <div class="winner-card">
+                <div class="winner-trophy">🏆</div>
+                
+                <div class="winner-name-section">
+                    <div class="name-label-en">Winner Name</div>
+                    <div class="name-label-ar">اسم الفائز</div>
+                    <div class="winner-name" id="winnerName">---</div>
+                </div>
+
+                <div class="winner-details">
+                    <div class="detail-row">
+                        <div class="detail-icon">📱</div>
+                        <div class="detail-content">
+                            <div class="detail-label-en">Mobile Number</div>
+                            <div class="detail-label-ar">رقم الجوال</div>
+                            <div class="detail-value" id="mobileNumber">---</div>
+                        </div>
+                    </div>
+                    <div class="detail-row" id="leadNumberRow" style="display:none;">
+                        <div class="detail-icon">🔢</div>
+                        <div class="detail-content">
+                            <div class="detail-label-en">Lead Number</div>
+                            <div class="detail-label-ar">رقم العميل المحتمل</div>
+                            <div class="detail-value" id="leadNumber">---</div>
+                        </div>
+                    </div>
+                    <div class="detail-row" id="projectRow" style="display:none;">
+                        <div class="detail-icon">🏢</div>
+                        <div class="detail-content">
+                            <div class="detail-label-en">Project Of Interest</div>
+                            <div class="detail-label-ar">المشروع المهتم به</div>
+                            <div class="detail-value" id="projectInterest">---</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="prize-section">
+                    <img 
+                        src="https://hips.hearstapps.com/hmg-prod/images/2026-land-rover-defender-pr-101-683dc8a7ead58.jpg?crop=0.667xw:0.668xh;0.0737xw,0.188xh&resize=1200:*" 
+                        alt="Defender 2026" 
+                        class="prize-car-image"
+                        id="prizeCarImage"
+                        onerror="this.style.display='none'; document.getElementById('prizeIconFallback').style.display='block';"
+                    >
+                    <div class="prize-icon prize-icon-fallback" id="prizeIconFallback">🚗</div>
+                    <div class="prize-label-en">The Prize</div>
+                    <div class="prize-label-ar">الجائزة</div>
+                    <div class="prize-text-en">Defender 2026</div>
+                    <div class="prize-text-ar">ديفندر موديل 2026</div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="download-btn" onclick="downloadWinnerInfo()">
+                    📥 Download Winner Info • تحميل بيانات الفائز
+                </button>
+                <button class="download-btn" onclick="window.print()" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); box-shadow: 0 8px 20px rgba(33, 150, 243, 0.4);">
+                    🖨️ Print / Save as PDF • طباعة / حفظ كملف PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create floating particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.width = Math.random() * 8 + 3 + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 6 + 's';
+            particle.style.animationDuration = Math.random() * 4 + 4 + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const winnerSection = document.getElementById('winnerSection');
+        const loading = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        const namesSection = document.getElementById('namesSection');
+        const namesGrid = document.getElementById('namesGrid');
+        const drawSection = document.getElementById('drawSection');
+        const drawNameEl = document.getElementById('drawName');
+        const drawBtn = document.getElementById('drawBtn');
+        
+        let allParticipants = [];
+        let selectedWinner = null;
+
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => {
+                uploadArea.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => {
+                uploadArea.classList.remove('dragover');
+            });
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload(files[0]);
+            }
+        });
+
+        function handleFile(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFileUpload(file);
+            }
+        }
+
+        function handleFileUpload(file) {
+            if (!file.name.match(/\.(xlsx|xls)$/)) {
+                showError('Please upload a valid Excel file • الرجاء تحميل ملف إكسل صحيح');
+                return;
+            }
+
+            loading.style.display = 'block';
+            errorDiv.style.display = 'none';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    
+                    loading.style.display = 'none';
+                    
+                    if (jsonData.length === 0) {
+                        showError('No data found in Excel file • لا توجد بيانات في الملف');
+                        return;
+                    }
+
+                    // Remove duplicates by mobile number
+                    const { uniqueParticipants, duplicatesCount } = removeDuplicatesByMobile(jsonData);
+                    
+                    allParticipants = uniqueParticipants;
+                    displayAllNames(uniqueParticipants, duplicatesCount);
+                } catch (error) {
+                    loading.style.display = 'none';
+                    showError('Error reading file • خطأ في قراءة الملف: ' + error.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function removeDuplicatesByMobile(participants) {
+            // Find the mobile number key
+            const mobileKey = Object.keys(participants[0] || {}).find(k => 
+                k.toLowerCase().includes('mobile') || 
+                k.toLowerCase().includes('phone') || 
+                k.toLowerCase().includes('جوال') ||
+                k.toLowerCase().includes('هاتف')
+            );
+
+            if (!mobileKey) {
+                // If no mobile field found, return all participants
+                return { uniqueParticipants: participants, duplicatesCount: 0 };
+            }
+
+            const seen = new Set();
+            const uniqueParticipants = [];
+            let duplicatesCount = 0;
+
+            participants.forEach(participant => {
+                const mobile = participant[mobileKey];
+                
+                // Only add if mobile exists and hasn't been seen
+                if (mobile && !seen.has(mobile)) {
+                    seen.add(mobile);
+                    uniqueParticipants.push(participant);
+                } else if (mobile && seen.has(mobile)) {
+                    duplicatesCount++;
+                }
+            });
+
+            return { uniqueParticipants, duplicatesCount };
+        }
+
+        function displayAllNames(participants, duplicatesCount) {
+            document.querySelector('.upload-section').style.display = 'none';
+            namesSection.style.display = 'block';
+            
+            document.getElementById('totalCount').textContent = participants.length;
+            
+            // Show duplicates info if any were removed
+            const duplicatesInfo = document.getElementById('duplicatesInfo');
+            if (duplicatesCount > 0) {
+                duplicatesInfo.style.display = 'block';
+                duplicatesInfo.innerHTML = `
+                    ⚠️ <strong>${duplicatesCount}</strong> duplicate${duplicatesCount > 1 ? 's' : ''} removed (same mobile number)<br>
+                    <span style="font-size: 0.9em;">تم إزالة <strong>${duplicatesCount}</strong> مكرر (نفس رقم الجوال)</span>
+                `;
+            }
+            
+            namesGrid.innerHTML = '';
+            
+            participants.forEach((participant, index) => {
+                const nameKey = Object.keys(participant).find(k => 
+                    k.toLowerCase().includes('name') || k.toLowerCase().includes('اسم')
+                ) || Object.keys(participant)[0];
+                const name = participant[nameKey] || `Participant ${index + 1}`;
+                
+                const nameItem = document.createElement('div');
+                nameItem.className = 'name-item';
+                nameItem.textContent = name;
+                nameItem.style.animationDelay = `${index * 0.05}s`;
+                namesGrid.appendChild(nameItem);
+            });
+            
+            namesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function startDraw() {
+            namesSection.style.display = 'none';
+            drawSection.style.display = 'block';
+            drawBtn.disabled = true;
+            drawNameEl.classList.add('spinning');
+            
+            // Shuffle and display names rapidly
+            let counter = 0;
+            const maxSpins = 30; // Number of name changes
+            const spinInterval = 100; // milliseconds between changes
+            
+            const spinTimer = setInterval(() => {
+                const randomIndex = Math.floor(Math.random() * allParticipants.length);
+                const participant = allParticipants[randomIndex];
+                const nameKey = Object.keys(participant).find(k => 
+                    k.toLowerCase().includes('name') || k.toLowerCase().includes('اسم')
+                ) || Object.keys(participant)[0];
+                drawNameEl.textContent = participant[nameKey];
+                
+                counter++;
+                
+                if (counter >= maxSpins) {
+                    clearInterval(spinTimer);
+                    // Slow down before final selection
+                    slowDownAndSelect();
+                }
+            }, spinInterval);
+        }
+
+        function slowDownAndSelect() {
+            let slowCounter = 0;
+            const slowSpins = 10;
+            let currentDelay = 150;
+            
+            function slowSpin() {
+                if (slowCounter >= slowSpins) {
+                    // Final selection
+                    selectFinalWinner();
+                    return;
+                }
+                
+                const randomIndex = Math.floor(Math.random() * allParticipants.length);
+                const participant = allParticipants[randomIndex];
+                const nameKey = Object.keys(participant).find(k => 
+                    k.toLowerCase().includes('name') || k.toLowerCase().includes('اسم')
+                ) || Object.keys(participant)[0];
+                drawNameEl.textContent = participant[nameKey];
+                
+                slowCounter++;
+                currentDelay += 50; // Gradually slow down
+                setTimeout(slowSpin, currentDelay);
+            }
+            
+            slowSpin();
+        }
+
+        function selectFinalWinner() {
+            // Select random winner
+            const winnerIndex = Math.floor(Math.random() * allParticipants.length);
+            selectedWinner = allParticipants[winnerIndex];
+            
+            const nameKey = Object.keys(selectedWinner).find(k => 
+                k.toLowerCase().includes('name') || k.toLowerCase().includes('اسم')
+            ) || Object.keys(selectedWinner)[0];
+            
+            drawNameEl.classList.remove('spinning');
+            drawNameEl.textContent = selectedWinner[nameKey];
+            
+            // Wait a moment then show full winner details
+            setTimeout(() => {
+                drawSection.style.display = 'none';
+                displayWinner(selectedWinner);
+                createConfetti();
+            }, 2000);
+        }
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function maskMobileNumber(mobile) {
+            // Convert to string and remove any spaces or special characters
+            const cleanMobile = String(mobile).replace(/\s+/g, '');
+            
+            // If mobile number is too short, return as is
+            if (cleanMobile.length < 7) {
+                return cleanMobile;
+            }
+            
+            // Show first 3 and last 3 digits, mask the middle
+            const firstPart = cleanMobile.substring(0, 3);
+            const lastPart = cleanMobile.substring(cleanMobile.length - 3);
+            const middleLength = cleanMobile.length - 6;
+            const maskedMiddle = '*'.repeat(middleLength);
+            
+            return `${firstPart}${maskedMiddle}${lastPart}`;
+        }
+
+        function displayWinner(winnerData) {
+            // Get winner name
+            const nameKey = Object.keys(winnerData).find(k => 
+                k.toLowerCase().includes('name') || k.toLowerCase().includes('اسم')
+            ) || Object.keys(winnerData)[0];
+            const winnerName = winnerData[nameKey] || 'Winner';
+            document.getElementById('winnerName').textContent = winnerName;
+
+            // Get mobile number and mask it for privacy
+            const mobileKey = Object.keys(winnerData).find(k => 
+                k.toLowerCase().includes('mobile') || 
+                k.toLowerCase().includes('phone') || 
+                k.toLowerCase().includes('جوال') ||
+                k.toLowerCase().includes('هاتف')
+            );
+            if (mobileKey && winnerData[mobileKey]) {
+                const fullMobile = String(winnerData[mobileKey]);
+                const maskedMobile = maskMobileNumber(fullMobile);
+                document.getElementById('mobileNumber').textContent = maskedMobile;
+            }
+
+            // Get lead number (optional)
+            const leadKey = Object.keys(winnerData).find(k => 
+                k.toLowerCase().includes('lead') ||
+                k.toLowerCase().includes('عميل')
+            );
+            if (leadKey && winnerData[leadKey]) {
+                document.getElementById('leadNumber').textContent = winnerData[leadKey];
+                document.getElementById('leadNumberRow').style.display = 'flex';
+            }
+
+            // Get project of interest (optional)
+            const projectKey = Object.keys(winnerData).find(k => 
+                k.toLowerCase().includes('project') ||
+                k.toLowerCase().includes('interest') ||
+                k.toLowerCase().includes('مشروع')
+            );
+            if (projectKey && winnerData[projectKey]) {
+                document.getElementById('projectInterest').textContent = winnerData[projectKey];
+                document.getElementById('projectRow').style.display = 'flex';
+            }
+
+            winnerSection.style.display = 'block';
+            winnerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = '-10px';
+                    confetti.style.background = ['#F27935', '#FFD700', '#FF6B6B', '#4ECDC4'][Math.floor(Math.random() * 4)];
+                    confetti.style.animationDelay = Math.random() * 2 + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 50);
+            }
+        }
+
+        function downloadWinnerInfo() {
+            if (!selectedWinner) {
+                alert('No winner selected yet! • لم يتم اختيار فائز بعد!');
+                return;
+            }
+
+            // Get winner details
+            const nameKey = Object.keys(selectedWinner).find(k => 
+                k.toLowerCase().includes('name') || k.toLowerCase().includes('اسم')
+            ) || Object.keys(selectedWinner)[0];
+            const winnerName = selectedWinner[nameKey] || 'Winner';
+
+            const mobileKey = Object.keys(selectedWinner).find(k => 
+                k.toLowerCase().includes('mobile') || 
+                k.toLowerCase().includes('phone') || 
+                k.toLowerCase().includes('جوال') ||
+                k.toLowerCase().includes('هاتف')
+            );
+            const mobileNumber = mobileKey ? selectedWinner[mobileKey] : 'N/A';
+
+            const leadKey = Object.keys(selectedWinner).find(k => 
+                k.toLowerCase().includes('lead') ||
+                k.toLowerCase().includes('عميل')
+            );
+            const leadNumber = leadKey ? selectedWinner[leadKey] : 'N/A';
+
+            const projectKey = Object.keys(selectedWinner).find(k => 
+                k.toLowerCase().includes('project') ||
+                k.toLowerCase().includes('interest') ||
+                k.toLowerCase().includes('مشروع')
+            );
+            const projectInterest = projectKey ? selectedWinner[projectKey] : 'N/A';
+
+            // Get current date
+            const currentDate = new Date().toLocaleString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            // Create formatted text content
+            const content = `
+═══════════════════════════════════════════════════════
+          CITY SCAPE 2025 WINNER ANNOUNCEMENT
+                    إعلان الفائز
+═══════════════════════════════════════════════════════
+
+🏆 WINNER INFORMATION / معلومات الفائز
+───────────────────────────────────────────────────────
+
+📛 Winner Name / اسم الفائز:
+   ${winnerName}
+
+📱 Mobile Number / رقم الجوال:
+   ${mobileNumber}
+
+${leadNumber !== 'N/A' ? `🔢 Lead Number / رقم العميل المحتمل:\n   ${leadNumber}\n\n` : ''}${projectInterest !== 'N/A' ? `🏢 Project Of Interest / المشروع المهتم به:\n   ${projectInterest}\n\n` : ''}───────────────────────────────────────────────────────
+
+🎁 PRIZE DETAILS / تفاصيل الجائزة
+───────────────────────────────────────────────────────
+
+🚗 Defender 2026
+   ديفندر موديل 2026
+
+───────────────────────────────────────────────────────
+
+📅 Draw Date / تاريخ السحب:
+   ${currentDate}
+
+🏢 Organized By / تنظيم:
+   Dar Wa Emaar (DWE)
+
+═══════════════════════════════════════════════════════
+          🎊 CONGRATULATIONS! مبروك! 🎊
+═══════════════════════════════════════════════════════
+`;
+
+            // Create blob and download
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `CityScape_2025_Winner_${winnerName.replace(/\s+/g, '_')}.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
