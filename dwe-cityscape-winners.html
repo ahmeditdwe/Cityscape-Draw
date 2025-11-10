@@ -5,6 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>City Scape 2025 Winner - Dar Wa Emaar</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script type="module">
+        // Import Firebase SDKs
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwQsyhYlYNt7kmJIl8QfqvzArLHScPMog",
+            authDomain: "cityscape-winner.firebaseapp.com",
+            projectId: "cityscape-winner",
+            storageBucket: "cityscape-winner.firebasestorage.app",
+            messagingSenderId: "471774865123",
+            appId: "1:471774865123:web:d1c9aae59e6e43385c87d6",
+            measurementId: "G-HVQD9D3FY8"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const analytics = getAnalytics(app);
+
+        // Make Firebase services available globally
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.firebaseAuthFunctions = { signInWithEmailAndPassword, signOut, onAuthStateChanged };
+        window.firestoreFunctions = { collection, doc, setDoc, getDoc, getDocs, query, where, serverTimestamp };
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -122,6 +152,247 @@
             font-size: 1.3em;
             opacity: 0.95;
             margin-top: 10px;
+        }
+
+        /* Login Section Styles */
+        .login-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 50px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 40px;
+            text-align: center;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .login-title {
+            font-size: 2em;
+            color: #F27935;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .login-subtitle {
+            font-size: 1.5em;
+            color: #555;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-group {
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #F27935;
+            box-shadow: 0 0 0 3px rgba(242, 121, 53, 0.1);
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #F27935 0%, #E86425 100%);
+            color: white;
+            padding: 18px 50px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(242, 121, 53, 0.4);
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(242, 121, 53, 0.5);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+            font-weight: 600;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.5);
+        }
+
+        .day-selector {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .day-selector-title {
+            font-size: 1.8em;
+            color: #F27935;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .day-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .day-btn {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            color: #333;
+            padding: 20px;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-family: 'Poppins', 'Cairo', sans-serif;
+        }
+
+        .day-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .day-btn.active {
+            background: linear-gradient(135deg, #F27935 0%, #E86425 100%);
+            color: white;
+            border-color: #F27935;
+            box-shadow: 0 8px 20px rgba(242, 121, 53, 0.4);
+        }
+
+        .day-btn.completed {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border-color: #4CAF50;
+            position: relative;
+        }
+
+        .day-btn.completed::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5em;
+        }
+
+        .day-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .day-info {
+            background: #fff8f4;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #F27935;
+        }
+
+        .day-info-text {
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .previous-winners {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 40px;
+        }
+
+        .previous-winners-title {
+            font-size: 1.8em;
+            color: #F27935;
+            margin-bottom: 20px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .winner-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .winner-item {
+            background: linear-gradient(135deg, #f9f9f9 0%, #f5f5f5 100%);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid #FFD700;
+            transition: all 0.3s ease;
+        }
+
+        .winner-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .winner-day {
+            font-size: 0.9em;
+            color: #F27935;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .winner-name-item {
+            font-size: 1.2em;
+            color: #333;
+            font-weight: 600;
         }
 
         .upload-section {
@@ -862,6 +1133,12 @@
                 width: 100%;
                 max-width: 280px;
             }
+            .logout-btn {
+                top: 10px;
+                right: 10px;
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
         }
 
         /* Print styles */
@@ -877,7 +1154,10 @@
             .names-section,
             .draw-section,
             .download-btn,
-            .confetti {
+            .confetti,
+            .logout-btn,
+            .day-selector,
+            .previous-winners {
                 display: none !important;
             }
 
@@ -913,136 +1193,217 @@
 <body>
     <div class="particles" id="particles"></div>
     
+    <button class="logout-btn" id="logoutBtn" style="display:none;" onclick="handleLogout()">
+        🚪 Logout • تسجيل الخروج
+    </button>
+    
     <div class="container">
-        <div class="header">
-            <div class="logo-container">
-                <img src="https://darwaemaar.com/wp-content/uploads/2023/05/DWE-Full-Colour-white.svg" alt="Dar Wa Emaar Logo" class="logo-svg">
-            </div>
-            <div class="bilingual-title">
-                <h1 class="title-en">City Scape 2025 Winner</h1>
-                <h1 class="title-ar">الفائز بسيتي سكيب 2025</h1>
-                <p class="subtitle">🎉 Congratulations • مبروك 🎊</p>
-            </div>
-        </div>
-
-        <div class="upload-section">
-            <div class="upload-area" id="uploadArea">
-                <div class="upload-icon">🏆</div>
-                <div class="upload-text">
-                    <h3 class="upload-text-en">Upload Winner Excel File</h3>
-                    <h3 class="upload-text-ar">تحميل ملف الفائز</h3>
+        <!-- Login Section -->
+        <div class="login-section" id="loginSection">
+            <h2 class="login-title">🔐 Admin Login</h2>
+            <h3 class="login-subtitle">تسجيل دخول المشرف</h3>
+            <form class="login-form" id="loginForm" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label class="input-label">Email • البريد الإلكتروني</label>
+                    <input type="email" class="input-field" id="emailInput" required placeholder="admin@darwaemaar.com">
                 </div>
-                <button class="btn" onclick="document.getElementById('fileInput').click()">
-                    📂 Select File • اختر الملف
+                <div class="input-group">
+                    <label class="input-label">Password • كلمة المرور</label>
+                    <input type="password" class="input-field" id="passwordInput" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="login-btn" id="loginBtn">
+                    🔑 Login • تسجيل الدخول
                 </button>
-                <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFile(event)">
-            </div>
+            </form>
         </div>
 
-        <div id="loading" class="loading" style="display:none;">
-            <p>🔄 Processing... • جاري المعالجة...</p>
-        </div>
-
-        <div id="error" class="error" style="display:none;"></div>
-
-        <div class="names-section" id="namesSection">
-            <div class="names-header">
-                <h2 class="names-title-en">All Participants</h2>
-                <h2 class="names-title-ar">جميع المشاركين</h2>
-                <div class="total-participants">
-                    <span id="totalCount">0</span> Participants • مشارك
+        <!-- Main Content (Hidden until authenticated) -->
+        <div id="mainContent" style="display:none;">
+            <div class="header">
+                <div class="logo-container">
+                    <img src="https://darwaemaar.com/wp-content/uploads/2023/05/DWE-Full-Colour-white.svg" alt="Dar Wa Emaar Logo" class="logo-svg">
                 </div>
-                <div class="duplicates-info" id="duplicatesInfo" style="display:none;"></div>
+                <div class="bilingual-title">
+                    <h1 class="title-en">City Scape 2025 Winner</h1>
+                    <h1 class="title-ar">الفائز بسيتي سكيب 2025</h1>
+                    <p class="subtitle">🎉 Congratulations • مبروك 🎊</p>
+                </div>
             </div>
-            <div class="names-grid" id="namesGrid"></div>
-            <div style="text-align: center;">
-                <button class="choose-winner-btn" onclick="startDraw()">
-                    🎲 Choose Winner • اختر الفائز 🎲
+
+            <!-- Day Selector -->
+            <div class="day-selector" id="daySelector">
+                <h2 class="day-selector-title">📅 Select Draw Day • اختر يوم السحب</h2>
+                <div class="day-buttons" id="dayButtons">
+                    <button class="day-btn" onclick="selectDay(1)" id="day1Btn">
+                        Day 1 • اليوم الأول
+                    </button>
+                    <button class="day-btn" onclick="selectDay(2)" id="day2Btn">
+                        Day 2 • اليوم الثاني
+                    </button>
+                    <button class="day-btn" onclick="selectDay(3)" id="day3Btn">
+                        Day 3 • اليوم الثالث
+                    </button>
+                    <button class="day-btn" onclick="selectDay(4)" id="day4Btn">
+                        Day 4 • اليوم الرابع
+                    </button>
+                </div>
+                <div class="day-info" id="dayInfo" style="display:none;">
+                    <div class="day-info-text" id="dayInfoText"></div>
+                </div>
+            </div>
+
+            <!-- Previous Winners -->
+            <div class="previous-winners" id="previousWinnersSection" style="display:none;">
+                <h2 class="previous-winners-title">🏆 Previous Winners • الفائزون السابقون</h2>
+                <div class="winner-list" id="previousWinnersList"></div>
+            </div>
+
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">🏆</div>
+                    <div class="upload-text">
+                        <h3 class="upload-text-en">Upload Winner Excel File</h3>
+                        <h3 class="upload-text-ar">تحميل ملف الفائز</h3>
+                    </div>
+                    <button class="btn" onclick="document.getElementById('fileInput').click()">
+                        📂 Select File • اختر الملف
+                    </button>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFile(event)">
+                </div>
+            </div>
+
+            <div id="loading" class="loading" style="display:none;">
+                <p>🔄 Processing... • جاري المعالجة...</p>
+            </div>
+
+            <div id="error" class="error" style="display:none;"></div>
+
+            <div class="names-section" id="namesSection">
+                <div class="names-header">
+                    <h2 class="names-title-en">All Participants</h2>
+                    <h2 class="names-title-ar">جميع المشاركين</h2>
+                    <div class="total-participants">
+                        <span id="totalCount">0</span> Participants • مشارك
+                    </div>
+                    <div class="duplicates-info" id="duplicatesInfo" style="display:none;"></div>
+                </div>
+                <div class="names-grid" id="namesGrid"></div>
+                <div style="text-align: center;">
+                    <button class="choose-winner-btn" onclick="startDraw()">
+                        🎲 Choose Winner • اختر الفائز 🎲
+                    </button>
+                </div>
+            </div>
+
+            <div class="draw-section" id="drawSection">
+                <div class="draw-display">
+                    <div class="draw-name" id="drawName">---</div>
+                </div>
+                <button class="choose-winner-btn" id="drawBtn" onclick="startDraw()" disabled>
+                    🎲 Drawing... • جاري السحب... 🎲
                 </button>
             </div>
-        </div>
 
-        <div class="draw-section" id="drawSection">
-            <div class="draw-display">
-                <div class="draw-name" id="drawName">---</div>
-            </div>
-            <button class="choose-winner-btn" id="drawBtn" onclick="startDraw()" disabled>
-                🎲 Drawing... • جاري السحب... 🎲
-            </button>
-        </div>
-
-        <div class="winner-section" id="winnerSection">
-            <div class="announcement-banner">
-                <div class="announcement-text-en">🎊 WINNER ANNOUNCEMENT 🎊</div>
-                <div class="announcement-text-ar">إعلان الفائز</div>
-            </div>
-
-            <div class="winner-card">
-                <div class="winner-trophy">🏆</div>
-                
-                <div class="winner-name-section">
-                    <div class="name-label-en">Winner Name</div>
-                    <div class="name-label-ar">اسم الفائز</div>
-                    <div class="winner-name" id="winnerName">---</div>
+            <div class="winner-section" id="winnerSection">
+                <div class="announcement-banner">
+                    <div class="announcement-text-en">🎊 WINNER ANNOUNCEMENT 🎊</div>
+                    <div class="announcement-text-ar">إعلان الفائز</div>
                 </div>
 
-                <div class="winner-details">
-                    <div class="detail-row">
-                        <div class="detail-icon">📱</div>
-                        <div class="detail-content">
-                            <div class="detail-label-en">Mobile Number</div>
-                            <div class="detail-label-ar">رقم الجوال</div>
-                            <div class="detail-value" id="mobileNumber">---</div>
+                <div class="winner-card">
+                    <div class="winner-trophy">🏆</div>
+                    
+                    <div class="winner-name-section">
+                        <div class="name-label-en">Winner Name</div>
+                        <div class="name-label-ar">اسم الفائز</div>
+                        <div class="winner-name" id="winnerName">---</div>
+                    </div>
+
+                    <div class="winner-details">
+                        <div class="detail-row">
+                            <div class="detail-icon">📱</div>
+                            <div class="detail-content">
+                                <div class="detail-label-en">Mobile Number</div>
+                                <div class="detail-label-ar">رقم الجوال</div>
+                                <div class="detail-value" id="mobileNumber">---</div>
+                            </div>
+                        </div>
+                        <div class="detail-row" id="leadNumberRow" style="display:none;">
+                            <div class="detail-icon">🔢</div>
+                            <div class="detail-content">
+                                <div class="detail-label-en">Lead Number</div>
+                                <div class="detail-label-ar">رقم العميل المحتمل</div>
+                                <div class="detail-value" id="leadNumber">---</div>
+                            </div>
+                        </div>
+                        <div class="detail-row" id="projectRow" style="display:none;">
+                            <div class="detail-icon">🏢</div>
+                            <div class="detail-content">
+                                <div class="detail-label-en">Project Of Interest</div>
+                                <div class="detail-label-ar">المشروع المهتم به</div>
+                                <div class="detail-value" id="projectInterest">---</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="detail-row" id="leadNumberRow" style="display:none;">
-                        <div class="detail-icon">🔢</div>
-                        <div class="detail-content">
-                            <div class="detail-label-en">Lead Number</div>
-                            <div class="detail-label-ar">رقم العميل المحتمل</div>
-                            <div class="detail-value" id="leadNumber">---</div>
-                        </div>
-                    </div>
-                    <div class="detail-row" id="projectRow" style="display:none;">
-                        <div class="detail-icon">🏢</div>
-                        <div class="detail-content">
-                            <div class="detail-label-en">Project Of Interest</div>
-                            <div class="detail-label-ar">المشروع المهتم به</div>
-                            <div class="detail-value" id="projectInterest">---</div>
-                        </div>
+
+                    <div class="prize-section">
+                        <img 
+                            src="https://hips.hearstapps.com/hmg-prod/images/2026-land-rover-defender-pr-101-683dc8a7ead58.jpg?crop=0.667xw:0.668xh;0.0737xw,0.188xh&resize=1200:*" 
+                            alt="Defender 2026" 
+                            class="prize-car-image"
+                            id="prizeCarImage"
+                            onerror="this.style.display='none'; document.getElementById('prizeIconFallback').style.display='block';"
+                        >
+                        <div class="prize-icon prize-icon-fallback" id="prizeIconFallback">🚗</div>
+                        <div class="prize-label-en">The Prize</div>
+                        <div class="prize-label-ar">الجائزة</div>
+                        <div class="prize-text-en">Defender 2026</div>
+                        <div class="prize-text-ar">ديفندر موديل 2026</div>
                     </div>
                 </div>
 
-                <div class="prize-section">
-                    <img 
-                        src="https://hips.hearstapps.com/hmg-prod/images/2026-land-rover-defender-pr-101-683dc8a7ead58.jpg?crop=0.667xw:0.668xh;0.0737xw,0.188xh&resize=1200:*" 
-                        alt="Defender 2026" 
-                        class="prize-car-image"
-                        id="prizeCarImage"
-                        onerror="this.style.display='none'; document.getElementById('prizeIconFallback').style.display='block';"
-                    >
-                    <div class="prize-icon prize-icon-fallback" id="prizeIconFallback">🚗</div>
-                    <div class="prize-label-en">The Prize</div>
-                    <div class="prize-label-ar">الجائزة</div>
-                    <div class="prize-text-en">Defender 2026</div>
-                    <div class="prize-text-ar">ديفندر موديل 2026</div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="download-btn" onclick="downloadWinnerInfo()">
+                        📥 Download Winner Info • تحميل بيانات الفائز
+                    </button>
+                    <button class="download-btn" onclick="window.print()" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); box-shadow: 0 8px 20px rgba(33, 150, 243, 0.4);">
+                        🖨️ Print / Save as PDF • طباعة / حفظ كملف PDF
+                    </button>
                 </div>
-            </div>
-
-            <div style="text-align: center; margin-top: 30px;">
-                <button class="download-btn" onclick="downloadWinnerInfo()">
-                    📥 Download Winner Info • تحميل بيانات الفائز
-                </button>
-                <button class="download-btn" onclick="window.print()" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); box-shadow: 0 8px 20px rgba(33, 150, 243, 0.4);">
-                    🖨️ Print / Save as PDF • طباعة / حفظ كملف PDF
-                </button>
             </div>
         </div>
     </div>
 
     <script>
-        // Create floating particles
+        // Global variables
+        let currentUser = null;
+        let selectedDay = null;
+        let allParticipants = [];
+        let selectedWinner = null;
+        let previousWinners = [];
+
+        // Configuration for draw days (Set these dates according to your schedule)
+        const drawDaysConfig = {
+            day1: { date: '2025-11-10', name: 'Day 1' }, // Example: November 10, 2025
+            day2: { date: '2025-11-11', name: 'Day 2' }, // Example: November 11, 2025
+            day3: { date: '2025-11-12', name: 'Day 3' }, // Example: November 12, 2025
+            day4: { date: '2025-11-13', name: 'Day 4' }  // Example: November 13, 2025
+        };
+
+        // DOM Elements - Initialize early
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const winnerSection = document.getElementById('winnerSection');
+        const loading = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        const namesSection = document.getElementById('namesSection');
+        const namesGrid = document.getElementById('namesGrid');
+        const drawSection = document.getElementById('drawSection');
+        const drawNameEl = document.getElementById('drawName');
+        const drawBtn = document.getElementById('drawBtn');
         const particlesContainer = document.getElementById('particles');
+
+        // Create floating particles
         for (let i = 0; i < 20; i++) {
             const particle = document.createElement('div');
             particle.className = 'particle';
@@ -1055,6 +1416,205 @@
             particlesContainer.appendChild(particle);
         }
 
+        // Wait for Firebase to be loaded
+        function initializeFirebase() {
+            if (!window.firebaseAuth || !window.firebaseAuthFunctions) {
+                console.error('Firebase not loaded yet, retrying...');
+                setTimeout(initializeFirebase, 100);
+                return;
+            }
+
+            // Authentication state listener
+            window.firebaseAuthFunctions.onAuthStateChanged(window.firebaseAuth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    showMainContent();
+                } else {
+                    currentUser = null;
+                    showLoginSection();
+                }
+            });
+        }
+
+        // Login handler
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+            const loginBtn = document.getElementById('loginBtn');
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = '⏳ Logging in... • جاري تسجيل الدخول...';
+            
+            try {
+                await window.firebaseAuthFunctions.signInWithEmailAndPassword(
+                    window.firebaseAuth,
+                    email,
+                    password
+                );
+                // User will be redirected automatically by auth state listener
+            } catch (error) {
+                showError('Login failed: ' + error.message + ' • فشل تسجيل الدخول');
+                loginBtn.disabled = false;
+                loginBtn.textContent = '🔑 Login • تسجيل الدخول';
+            }
+        }
+
+        // Logout handler
+        async function handleLogout() {
+            try {
+                await window.firebaseAuthFunctions.signOut(window.firebaseAuth);
+                location.reload();
+            } catch (error) {
+                showError('Logout failed: ' + error.message);
+            }
+        }
+
+        // Show/hide sections based on auth state
+        function showLoginSection() {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'none';
+        }
+
+        function showMainContent() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('logoutBtn').style.display = 'block';
+            initializeApp();
+        }
+
+        // Initialize the app after authentication
+        async function initializeApp() {
+            await loadPreviousWinners();
+            await updateDayButtons();
+        }
+
+        // Load previous winners from Firestore
+        async function loadPreviousWinners() {
+            try {
+                const winnersRef = window.firestoreFunctions.collection(window.firebaseDb, 'winners');
+                const winnersSnapshot = await window.firestoreFunctions.getDocs(winnersRef);
+                
+                previousWinners = [];
+                const previousWinnersList = document.getElementById('previousWinnersList');
+                previousWinnersList.innerHTML = '';
+
+                if (!winnersSnapshot.empty) {
+                    document.getElementById('previousWinnersSection').style.display = 'block';
+                    
+                    winnersSnapshot.forEach((doc) => {
+                        const winner = doc.data();
+                        previousWinners.push(winner);
+                        
+                        const winnerItem = document.createElement('div');
+                        winnerItem.className = 'winner-item';
+                        winnerItem.innerHTML = `
+                            <div class="winner-day">${winner.day}</div>
+                            <div class="winner-name-item">${winner.name}</div>
+                        `;
+                        previousWinnersList.appendChild(winnerItem);
+                    });
+                } else {
+                    document.getElementById('previousWinnersSection').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error loading previous winners:', error);
+            }
+        }
+
+        // Update day buttons based on completed draws
+        async function updateDayButtons() {
+            const daysInfoRef = window.firestoreFunctions.collection(window.firebaseDb, 'daysInfo');
+            
+            for (let i = 1; i <= 4; i++) {
+                const dayBtn = document.getElementById(`day${i}Btn`);
+                const dayDoc = await window.firestoreFunctions.getDoc(
+                    window.firestoreFunctions.doc(window.firebaseDb, 'daysInfo', `day${i}`)
+                );
+                
+                if (dayDoc.exists()) {
+                    const dayData = dayDoc.data();
+                    if (dayData.winner) {
+                        dayBtn.classList.add('completed');
+                        dayBtn.disabled = false; // Can still view completed days
+                    }
+                }
+            }
+        }
+
+        // Select a day
+        async function selectDay(day) {
+            selectedDay = day;
+            const dayConfig = drawDaysConfig[`day${day}`];
+            const today = new Date().toISOString().split('T')[0];
+            
+            // Update day button states
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`day${i}Btn`);
+                if (i === day) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            }
+
+            // Check if this day's draw is already completed
+            const dayDocRef = window.firestoreFunctions.doc(window.firebaseDb, 'daysInfo', `day${day}`);
+            const dayDoc = await window.firestoreFunctions.getDoc(dayDocRef);
+            
+            if (dayDoc.exists() && dayDoc.data().winner) {
+                // Day already completed, show winner
+                showDayInfo(`✅ Day ${day} draw already completed • تم إكمال سحب اليوم ${day}`, 'success');
+                displayCompletedDayWinner(dayDoc.data());
+                return;
+            }
+
+            // Check if it's the correct date to upload for this day
+            if (today !== dayConfig.date) {
+                showDayInfo(
+                    `⚠️ You can only upload for Day ${day} on ${dayConfig.date} • يمكنك التحميل فقط في التاريخ ${dayConfig.date}`,
+                    'warning'
+                );
+                document.querySelector('.upload-section').style.display = 'none';
+                return;
+            }
+
+            // Show upload section for the selected day
+            showDayInfo(`✓ Day ${day} selected - ${dayConfig.date} • تم اختيار اليوم ${day}`, 'success');
+            document.querySelector('.upload-section').style.display = 'block';
+            document.getElementById('namesSection').style.display = 'none';
+            document.getElementById('drawSection').style.display = 'none';
+            document.getElementById('winnerSection').style.display = 'none';
+        }
+
+        // Show day information
+        function showDayInfo(message, type) {
+            const dayInfo = document.getElementById('dayInfo');
+            const dayInfoText = document.getElementById('dayInfoText');
+            dayInfo.style.display = 'block';
+            dayInfoText.textContent = message;
+            
+            if (type === 'warning') {
+                dayInfo.style.background = '#fff3cd';
+                dayInfo.style.borderColor = '#ffc107';
+            } else if (type === 'success') {
+                dayInfo.style.background = '#d4edda';
+                dayInfo.style.borderColor = '#28a745';
+            }
+        }
+
+        // Display completed day winner
+        function displayCompletedDayWinner(dayData) {
+            document.querySelector('.upload-section').style.display = 'none';
+            document.getElementById('namesSection').style.display = 'none';
+            document.getElementById('drawSection').style.display = 'none';
+            document.getElementById('winnerSection').style.display = 'block';
+            
+            selectedWinner = dayData.winner;
+            displayWinner(dayData.winner);
+        }
+
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
         const winnerSection = document.getElementById('winnerSection');
@@ -1065,9 +1625,6 @@
         const drawSection = document.getElementById('drawSection');
         const drawNameEl = document.getElementById('drawName');
         const drawBtn = document.getElementById('drawBtn');
-        
-        let allParticipants = [];
-        let selectedWinner = null;
 
         // Drag and drop functionality
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -1106,6 +1663,11 @@
         }
 
         function handleFileUpload(file) {
+            if (!selectedDay) {
+                showError('Please select a day first! • الرجاء اختيار اليوم أولاً!');
+                return;
+            }
+
             if (!file.name.match(/\.(xlsx|xls)$/)) {
                 showError('Please upload a valid Excel file • الرجاء تحميل ملف إكسل صحيح');
                 return;
@@ -1132,8 +1694,19 @@
                     // Remove duplicates by mobile number
                     const { uniqueParticipants, duplicatesCount } = removeDuplicatesByMobile(jsonData);
                     
-                    allParticipants = uniqueParticipants;
-                    displayAllNames(uniqueParticipants, duplicatesCount);
+                    // Exclude previous winners
+                    const eligibleParticipants = excludePreviousWinners(uniqueParticipants);
+                    
+                    if (eligibleParticipants.length === 0) {
+                        showError('No eligible participants after excluding previous winners! • لا يوجد مشاركين مؤهلين بعد استبعاد الفائزين السابقين!');
+                        return;
+                    }
+                    
+                    allParticipants = eligibleParticipants;
+                    displayAllNames(eligibleParticipants, duplicatesCount, uniqueParticipants.length - eligibleParticipants.length);
+                    
+                    // Save participants count to Firestore
+                    saveDayInfo(eligibleParticipants.length);
                 } catch (error) {
                     loading.style.display = 'none';
                     showError('Error reading file • خطأ في قراءة الملف: ' + error.message);
@@ -1143,7 +1716,6 @@
         }
 
         function removeDuplicatesByMobile(participants) {
-            // Find the mobile number key
             const mobileKey = Object.keys(participants[0] || {}).find(k => 
                 k.toLowerCase().includes('mobile') || 
                 k.toLowerCase().includes('phone') || 
@@ -1152,7 +1724,6 @@
             );
 
             if (!mobileKey) {
-                // If no mobile field found, return all participants
                 return { uniqueParticipants: participants, duplicatesCount: 0 };
             }
 
@@ -1163,7 +1734,6 @@
             participants.forEach(participant => {
                 const mobile = participant[mobileKey];
                 
-                // Only add if mobile exists and hasn't been seen
                 if (mobile && !seen.has(mobile)) {
                     seen.add(mobile);
                     uniqueParticipants.push(participant);
@@ -1175,20 +1745,73 @@
             return { uniqueParticipants, duplicatesCount };
         }
 
-        function displayAllNames(participants, duplicatesCount) {
+        // Exclude previous winners from current participants
+        function excludePreviousWinners(participants) {
+            const mobileKey = Object.keys(participants[0] || {}).find(k => 
+                k.toLowerCase().includes('mobile') || 
+                k.toLowerCase().includes('phone') || 
+                k.toLowerCase().includes('جوال') ||
+                k.toLowerCase().includes('هاتف')
+            );
+
+            if (!mobileKey || previousWinners.length === 0) {
+                return participants;
+            }
+
+            // Create set of previous winner mobile numbers
+            const winnerMobiles = new Set(previousWinners.map(w => w.mobile));
+
+            // Filter out previous winners
+            return participants.filter(participant => {
+                const mobile = participant[mobileKey];
+                return mobile && !winnerMobiles.has(mobile);
+            });
+        }
+
+        // Save day info to Firestore
+        async function saveDayInfo(participantsCount) {
+            try {
+                const dayDocRef = window.firestoreFunctions.doc(
+                    window.firebaseDb,
+                    'daysInfo',
+                    `day${selectedDay}`
+                );
+                
+                await window.firestoreFunctions.setDoc(dayDocRef, {
+                    day: `Day ${selectedDay}`,
+                    date: drawDaysConfig[`day${selectedDay}`].date,
+                    uploadTimestamp: window.firestoreFunctions.serverTimestamp(),
+                    participantsCount: participantsCount,
+                    winner: null
+                }, { merge: true });
+            } catch (error) {
+                console.error('Error saving day info:', error);
+            }
+        }
+
+        function displayAllNames(participants, duplicatesCount, excludedCount) {
             document.querySelector('.upload-section').style.display = 'none';
             namesSection.style.display = 'block';
             
             document.getElementById('totalCount').textContent = participants.length;
             
-            // Show duplicates info if any were removed
+            // Show duplicates and excluded info
             const duplicatesInfo = document.getElementById('duplicatesInfo');
+            let infoHtml = '';
+            
             if (duplicatesCount > 0) {
+                infoHtml += `⚠️ <strong>${duplicatesCount}</strong> duplicate${duplicatesCount > 1 ? 's' : ''} removed (same mobile number)<br>
+                    <span style="font-size: 0.9em;">تم إزالة <strong>${duplicatesCount}</strong> مكرر (نفس رقم الجوال)</span><br>`;
+            }
+            
+            if (excludedCount > 0) {
+                infoHtml += `🚫 <strong>${excludedCount}</strong> previous winner${excludedCount > 1 ? 's' : ''} excluded<br>
+                    <span style="font-size: 0.9em;">تم استبعاد <strong>${excludedCount}</strong> فائز سابق</span>`;
+            }
+            
+            if (infoHtml) {
                 duplicatesInfo.style.display = 'block';
-                duplicatesInfo.innerHTML = `
-                    ⚠️ <strong>${duplicatesCount}</strong> duplicate${duplicatesCount > 1 ? 's' : ''} removed (same mobile number)<br>
-                    <span style="font-size: 0.9em;">تم إزالة <strong>${duplicatesCount}</strong> مكرر (نفس رقم الجوال)</span>
-                `;
+                duplicatesInfo.innerHTML = infoHtml;
             }
             
             namesGrid.innerHTML = '';
@@ -1215,10 +1838,9 @@
             drawBtn.disabled = true;
             drawNameEl.classList.add('spinning');
             
-            // Shuffle and display names rapidly
             let counter = 0;
-            const maxSpins = 30; // Number of name changes
-            const spinInterval = 100; // milliseconds between changes
+            const maxSpins = 30;
+            const spinInterval = 100;
             
             const spinTimer = setInterval(() => {
                 const randomIndex = Math.floor(Math.random() * allParticipants.length);
@@ -1232,7 +1854,6 @@
                 
                 if (counter >= maxSpins) {
                     clearInterval(spinTimer);
-                    // Slow down before final selection
                     slowDownAndSelect();
                 }
             }, spinInterval);
@@ -1245,7 +1866,6 @@
             
             function slowSpin() {
                 if (slowCounter >= slowSpins) {
-                    // Final selection
                     selectFinalWinner();
                     return;
                 }
@@ -1258,15 +1878,14 @@
                 drawNameEl.textContent = participant[nameKey];
                 
                 slowCounter++;
-                currentDelay += 50; // Gradually slow down
+                currentDelay += 50;
                 setTimeout(slowSpin, currentDelay);
             }
             
             slowSpin();
         }
 
-        function selectFinalWinner() {
-            // Select random winner
+        async function selectFinalWinner() {
             const winnerIndex = Math.floor(Math.random() * allParticipants.length);
             selectedWinner = allParticipants[winnerIndex];
             
@@ -1277,12 +1896,79 @@
             drawNameEl.classList.remove('spinning');
             drawNameEl.textContent = selectedWinner[nameKey];
             
-            // Wait a moment then show full winner details
+            // Save winner to Firestore
+            await saveWinner(selectedWinner);
+            
             setTimeout(() => {
                 drawSection.style.display = 'none';
                 displayWinner(selectedWinner);
                 createConfetti();
             }, 2000);
+        }
+
+        // Save winner to Firestore
+        async function saveWinner(winnerData) {
+            try {
+                const nameKey = Object.keys(winnerData).find(k => 
+                    k.toLowerCase().includes('name') || k.toLowerCase().includes('اسم')
+                ) || Object.keys(winnerData)[0];
+                const winnerName = winnerData[nameKey] || 'Winner';
+
+                const mobileKey = Object.keys(winnerData).find(k => 
+                    k.toLowerCase().includes('mobile') || 
+                    k.toLowerCase().includes('phone') || 
+                    k.toLowerCase().includes('جوال') ||
+                    k.toLowerCase().includes('هاتف')
+                );
+                const mobileNumber = mobileKey ? String(winnerData[mobileKey]) : 'N/A';
+
+                const leadKey = Object.keys(winnerData).find(k => 
+                    k.toLowerCase().includes('lead') ||
+                    k.toLowerCase().includes('عميل')
+                );
+                const leadNumber = leadKey ? winnerData[leadKey] : 'N/A';
+
+                const projectKey = Object.keys(winnerData).find(k => 
+                    k.toLowerCase().includes('project') ||
+                    k.toLowerCase().includes('interest') ||
+                    k.toLowerCase().includes('مشروع')
+                );
+                const projectInterest = projectKey ? winnerData[projectKey] : 'N/A';
+
+                const winnerObject = {
+                    day: `Day ${selectedDay}`,
+                    name: winnerName,
+                    mobile: mobileNumber,
+                    leadNumber: leadNumber,
+                    projectInterest: projectInterest,
+                    drawTimestamp: window.firestoreFunctions.serverTimestamp()
+                };
+
+                // Save to winners collection
+                const winnerDocRef = window.firestoreFunctions.doc(
+                    window.firebaseDb,
+                    'winners',
+                    `day${selectedDay}_winner`
+                );
+                await window.firestoreFunctions.setDoc(winnerDocRef, winnerObject);
+
+                // Update day info with winner
+                const dayDocRef = window.firestoreFunctions.doc(
+                    window.firebaseDb,
+                    'daysInfo',
+                    `day${selectedDay}`
+                );
+                await window.firestoreFunctions.setDoc(dayDocRef, {
+                    winner: winnerObject
+                }, { merge: true });
+
+                // Reload previous winners
+                await loadPreviousWinners();
+                await updateDayButtons();
+            } catch (error) {
+                console.error('Error saving winner:', error);
+                showError('Error saving winner data: ' + error.message);
+            }
         }
 
         function showError(message) {
@@ -1294,15 +1980,12 @@
         }
 
         function maskMobileNumber(mobile) {
-            // Convert to string and remove any spaces or special characters
             const cleanMobile = String(mobile).replace(/\s+/g, '');
             
-            // If mobile number is too short, return as is
             if (cleanMobile.length < 7) {
                 return cleanMobile;
             }
             
-            // Show first 3 and last 3 digits, mask the middle
             const firstPart = cleanMobile.substring(0, 3);
             const lastPart = cleanMobile.substring(cleanMobile.length - 3);
             const middleLength = cleanMobile.length - 6;
@@ -1312,14 +1995,12 @@
         }
 
         function displayWinner(winnerData) {
-            // Get winner name
             const nameKey = Object.keys(winnerData).find(k => 
                 k.toLowerCase().includes('name') || k.toLowerCase().includes('اسم')
             ) || Object.keys(winnerData)[0];
-            const winnerName = winnerData[nameKey] || 'Winner';
+            const winnerName = winnerData[nameKey] || winnerData.name || 'Winner';
             document.getElementById('winnerName').textContent = winnerName;
 
-            // Get mobile number and mask it for privacy
             const mobileKey = Object.keys(winnerData).find(k => 
                 k.toLowerCase().includes('mobile') || 
                 k.toLowerCase().includes('phone') || 
@@ -1330,27 +2011,34 @@
                 const fullMobile = String(winnerData[mobileKey]);
                 const maskedMobile = maskMobileNumber(fullMobile);
                 document.getElementById('mobileNumber').textContent = maskedMobile;
+            } else if (winnerData.mobile) {
+                const maskedMobile = maskMobileNumber(winnerData.mobile);
+                document.getElementById('mobileNumber').textContent = maskedMobile;
             }
 
-            // Get lead number (optional)
             const leadKey = Object.keys(winnerData).find(k => 
                 k.toLowerCase().includes('lead') ||
                 k.toLowerCase().includes('عميل')
             );
-            if (leadKey && winnerData[leadKey]) {
-                document.getElementById('leadNumber').textContent = winnerData[leadKey];
-                document.getElementById('leadNumberRow').style.display = 'flex';
+            if ((leadKey && winnerData[leadKey]) || winnerData.leadNumber) {
+                const leadNum = winnerData[leadKey] || winnerData.leadNumber;
+                if (leadNum !== 'N/A') {
+                    document.getElementById('leadNumber').textContent = leadNum;
+                    document.getElementById('leadNumberRow').style.display = 'flex';
+                }
             }
 
-            // Get project of interest (optional)
             const projectKey = Object.keys(winnerData).find(k => 
                 k.toLowerCase().includes('project') ||
                 k.toLowerCase().includes('interest') ||
                 k.toLowerCase().includes('مشروع')
             );
-            if (projectKey && winnerData[projectKey]) {
-                document.getElementById('projectInterest').textContent = winnerData[projectKey];
-                document.getElementById('projectRow').style.display = 'flex';
+            if ((projectKey && winnerData[projectKey]) || winnerData.projectInterest) {
+                const project = winnerData[projectKey] || winnerData.projectInterest;
+                if (project !== 'N/A') {
+                    document.getElementById('projectInterest').textContent = project;
+                    document.getElementById('projectRow').style.display = 'flex';
+                }
             }
 
             winnerSection.style.display = 'block';
@@ -1379,11 +2067,10 @@
                 return;
             }
 
-            // Get winner details
             const nameKey = Object.keys(selectedWinner).find(k => 
                 k.toLowerCase().includes('name') || k.toLowerCase().includes('اسم')
             ) || Object.keys(selectedWinner)[0];
-            const winnerName = selectedWinner[nameKey] || 'Winner';
+            const winnerName = selectedWinner[nameKey] || selectedWinner.name || 'Winner';
 
             const mobileKey = Object.keys(selectedWinner).find(k => 
                 k.toLowerCase().includes('mobile') || 
@@ -1391,22 +2078,21 @@
                 k.toLowerCase().includes('جوال') ||
                 k.toLowerCase().includes('هاتف')
             );
-            const mobileNumber = mobileKey ? selectedWinner[mobileKey] : 'N/A';
+            const mobileNumber = mobileKey ? selectedWinner[mobileKey] : (selectedWinner.mobile || 'N/A');
 
             const leadKey = Object.keys(selectedWinner).find(k => 
                 k.toLowerCase().includes('lead') ||
                 k.toLowerCase().includes('عميل')
             );
-            const leadNumber = leadKey ? selectedWinner[leadKey] : 'N/A';
+            const leadNumber = leadKey ? selectedWinner[leadKey] : (selectedWinner.leadNumber || 'N/A');
 
             const projectKey = Object.keys(selectedWinner).find(k => 
                 k.toLowerCase().includes('project') ||
                 k.toLowerCase().includes('interest') ||
                 k.toLowerCase().includes('مشروع')
             );
-            const projectInterest = projectKey ? selectedWinner[projectKey] : 'N/A';
+            const projectInterest = projectKey ? selectedWinner[projectKey] : (selectedWinner.projectInterest || 'N/A');
 
-            // Get current date
             const currentDate = new Date().toLocaleString('en-US', {
                 weekday: 'long',
                 year: 'numeric',
@@ -1416,15 +2102,14 @@
                 minute: '2-digit'
             });
 
-            // Create formatted text content
             const content = `
-═══════════════════════════════════════════════════════
+╔════════════════════════════════════════════════════════╗
           CITY SCAPE 2025 WINNER ANNOUNCEMENT
                     إعلان الفائز
-═══════════════════════════════════════════════════════
+╚════════════════════════════════════════════════════════╝
 
 🏆 WINNER INFORMATION / معلومات الفائز
-───────────────────────────────────────────────────────
+─────────────────────────────────────────────────────────
 
 📛 Winner Name / اسم الفائز:
    ${winnerName}
@@ -1432,15 +2117,18 @@
 📱 Mobile Number / رقم الجوال:
    ${mobileNumber}
 
-${leadNumber !== 'N/A' ? `🔢 Lead Number / رقم العميل المحتمل:\n   ${leadNumber}\n\n` : ''}${projectInterest !== 'N/A' ? `🏢 Project Of Interest / المشروع المهتم به:\n   ${projectInterest}\n\n` : ''}───────────────────────────────────────────────────────
+${leadNumber !== 'N/A' ? `📢 Lead Number / رقم العميل المحتمل:\n   ${leadNumber}\n\n` : ''}${projectInterest !== 'N/A' ? `🏢 Project Of Interest / المشروع المهتم به:\n   ${projectInterest}\n\n` : ''}📅 Day / اليوم:
+   Day ${selectedDay}
+
+─────────────────────────────────────────────────────────
 
 🎁 PRIZE DETAILS / تفاصيل الجائزة
-───────────────────────────────────────────────────────
+─────────────────────────────────────────────────────────
 
 🚗 Defender 2026
    ديفندر موديل 2026
 
-───────────────────────────────────────────────────────
+─────────────────────────────────────────────────────────
 
 📅 Draw Date / تاريخ السحب:
    ${currentDate}
@@ -1448,21 +2136,31 @@ ${leadNumber !== 'N/A' ? `🔢 Lead Number / رقم العميل المحتمل:
 🏢 Organized By / تنظيم:
    Dar Wa Emaar (DWE)
 
-═══════════════════════════════════════════════════════
+╔════════════════════════════════════════════════════════╗
           🎊 CONGRATULATIONS! مبروك! 🎊
-═══════════════════════════════════════════════════════
+╚════════════════════════════════════════════════════════╝
 `;
 
-            // Create blob and download
             const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `CityScape_2025_Winner_${winnerName.replace(/\s+/g, '_')}.txt`;
+            link.download = `CityScape_2025_Day${selectedDay}_Winner_${winnerName.replace(/\s+/g, '_')}.txt`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
+        }
+
+        // Initialize Firebase when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setupDragAndDrop();
+                initializeFirebase();
+            });
+        } else {
+            setupDragAndDrop();
+            initializeFirebase();
         }
     </script>
 </body>
