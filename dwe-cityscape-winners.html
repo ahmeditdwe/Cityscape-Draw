@@ -444,6 +444,17 @@
             margin-bottom: 10px;
         }
 
+        .eligible-count {
+            font-size: 1.3em;
+            color: #28a745;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #d4edda;
+            border-radius: 10px;
+            border-left: 4px solid #28a745;
+        }
+
         .duplicates-info {
             font-size: 1.2em;
             color: #E86425;
@@ -459,12 +470,12 @@
             padding: 20px;
             background: #fff3cd;
             border-radius: 10px;
-            border-left: 4px solid #ffc107;
+            border-left: 4px solid #dc3545;
         }
 
         .excluded-winners-title {
-            font-size: 1.3em;
-            color: #856404;
+            font-size: 1.4em;
+            color: #721c24;
             font-weight: 700;
             margin-bottom: 15px;
             display: flex;
@@ -473,15 +484,13 @@
         }
 
         .excluded-winner-item {
-            padding: 12px 15px;
-            margin-bottom: 10px;
+            padding: 15px 20px;
+            margin-bottom: 12px;
             background: white;
             border-radius: 8px;
-            border-left: 3px solid #ffc107;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            border-left: 4px solid #dc3545;
             animation: slideInLeft 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         @keyframes slideInLeft {
@@ -495,24 +504,38 @@
             }
         }
 
+        .excluded-winner-main {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .excluded-winner-icon {
+            font-size: 1.8em;
+            filter: grayscale(100%);
+        }
+
         .excluded-winner-name {
-            font-weight: 600;
-            color: #333;
+            font-weight: 700;
+            color: #721c24;
+            font-size: 1.15em;
             flex: 1;
         }
 
-        .excluded-winner-badge {
-            background: #ffc107;
+        .excluded-winner-message {
             color: #856404;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.85em;
-            font-weight: 600;
+            font-size: 1em;
+            padding-left: 48px;
+            line-height: 1.5;
         }
 
-        .excluded-winner-reason {
+        .excluded-winner-message-ar {
+            direction: rtl;
+            padding-right: 48px;
+            padding-left: 0;
             color: #856404;
-            font-size: 0.9em;
+            font-size: 0.95em;
         }
 
         .names-grid {
@@ -525,6 +548,21 @@
             background: #f9f9f9;
             border-radius: 15px;
             margin-bottom: 40px;
+            position: relative;
+        }
+
+        .names-grid::before {
+            content: '✅ Only eligible participants shown below (previous winners excluded)';
+            display: block;
+            grid-column: 1 / -1;
+            padding: 12px;
+            background: #d4edda;
+            color: #155724;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+            border: 2px solid #28a745;
         }
 
         .names-grid::-webkit-scrollbar {
@@ -1204,8 +1242,18 @@
                 flex-direction: column;
                 text-align: center;
                 gap: 8px;
+                padding: 12px 15px;
             }
-            .excluded-winner-reason {
+            .excluded-winner-main {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .excluded-winner-message {
+                padding-left: 0;
+                font-size: 0.9em;
+            }
+            .excluded-winner-message-ar {
+                padding-right: 0;
                 font-size: 0.85em;
             }
         }
@@ -1349,11 +1397,12 @@
 
             <div class="names-section" id="namesSection">
                 <div class="names-header">
-                    <h2 class="names-title-en">All Participants</h2>
-                    <h2 class="names-title-ar">جميع المشاركين</h2>
+                    <h2 class="names-title-en">Eligible Participants for Draw</h2>
+                    <h2 class="names-title-ar">المشاركين المؤهلين للسحب</h2>
                     <div class="total-participants">
-                        <span id="totalCount">0</span> Participants • مشارك
+                        <span id="totalCount">0</span> Eligible • مؤهل
                     </div>
+                    <div class="eligible-count" id="eligibleCount" style="display:none;"></div>
                     <div class="duplicates-info" id="duplicatesInfo" style="display:none;"></div>
                 </div>
                 <div class="names-grid" id="namesGrid"></div>
@@ -1454,9 +1503,9 @@
         // Configuration for draw days (Set these dates according to your schedule)
         const drawDaysConfig = {
             day1: { date: '2025-11-10', name: 'Day 1' }, // Change to your actual date
-            day2: { date: '2025-11-11', name: 'Day 2' }, // Change to your actual date
+            day2: { date: '2025-11-10', name: 'Day 2' }, // Change to your actual date
             day3: { date: '2025-11-10', name: 'Day 3' }, // Change to your actual date
-            day4: { date: '2025-11-13', name: 'Day 4' }  // Change to your actual date
+            day4: { date: '2025-11-10', name: 'Day 4' }  // Change to your actual date
         };
 
         // DOM Elements - Initialize early
@@ -1790,16 +1839,29 @@
 
             participants.forEach(participant => {
                 const mobile = participant[mobileKey];
+                const normalizedMobile = normalizeMobileNumber(mobile);
                 
-                if (mobile && !seen.has(mobile)) {
-                    seen.add(mobile);
+                if (normalizedMobile && !seen.has(normalizedMobile)) {
+                    seen.add(normalizedMobile);
+                    // Store normalized mobile in the participant object
+                    participant._normalizedMobile = normalizedMobile;
                     uniqueParticipants.push(participant);
-                } else if (mobile && seen.has(mobile)) {
+                } else if (normalizedMobile && seen.has(normalizedMobile)) {
                     duplicatesCount++;
                 }
             });
 
             return { uniqueParticipants, duplicatesCount };
+        }
+
+        // Helper function to normalize mobile numbers for comparison
+        function normalizeMobileNumber(mobile) {
+            if (!mobile) return null;
+            // Convert to string and remove all spaces, dashes, parentheses, and plus signs
+            const cleaned = String(mobile).replace(/[\s\-\(\)\+]/g, '');
+            // Remove leading zeros and country codes
+            const normalized = cleaned.replace(/^(00966|966|0+)/, '');
+            return normalized || cleaned; // Return cleaned if normalized is empty
         }
 
         // Exclude previous winners from current participants
@@ -1819,9 +1881,13 @@
                 return { eligibleParticipants: participants, excludedWinners: [] };
             }
 
+            // Create a map of normalized mobile numbers to winner info
             const winnerMobilesMap = new Map();
             previousWinners.forEach(winner => {
-                winnerMobilesMap.set(winner.mobile, winner);
+                const normalizedWinnerMobile = normalizeMobileNumber(winner.mobile);
+                if (normalizedWinnerMobile) {
+                    winnerMobilesMap.set(normalizedWinnerMobile, winner);
+                }
             });
 
             const eligibleParticipants = [];
@@ -1829,18 +1895,31 @@
 
             participants.forEach(participant => {
                 const mobile = participant[mobileKey];
-                if (mobile && winnerMobilesMap.has(mobile)) {
-                    // This person is a previous winner
-                    const previousWinner = winnerMobilesMap.get(mobile);
+                const normalizedMobile = participant._normalizedMobile || normalizeMobileNumber(mobile);
+                
+                console.log('Checking participant:', participant[nameKey], 'Mobile:', mobile, 'Normalized:', normalizedMobile);
+                
+                if (normalizedMobile && winnerMobilesMap.has(normalizedMobile)) {
+                    // This person is a previous winner - EXCLUDE them
+                    const previousWinner = winnerMobilesMap.get(normalizedMobile);
+                    console.log('🚫 EXCLUDED:', participant[nameKey], 'Won on:', previousWinner.day);
                     excludedWinners.push({
                         name: participant[nameKey] || 'Unknown',
                         wonOn: previousWinner.day,
                         mobile: mobile
                     });
-                } else if (mobile) {
+                } else if (normalizedMobile) {
+                    // This person is eligible
+                    console.log('✅ ELIGIBLE:', participant[nameKey]);
+                    eligibleParticipants.push(participant);
+                } else {
+                    // No mobile number - still include but log warning
+                    console.warn('⚠️ No mobile for:', participant[nameKey]);
                     eligibleParticipants.push(participant);
                 }
             });
+
+            console.log('📊 Final counts - Eligible:', eligibleParticipants.length, 'Excluded:', excludedWinners.length);
 
             return { eligibleParticipants, excludedWinners };
         }
@@ -1870,7 +1949,20 @@
             document.querySelector('.upload-section').style.display = 'none';
             namesSection.style.display = 'block';
             
+            // Show total eligible participants in the draw
             document.getElementById('totalCount').textContent = participants.length;
+            
+            // Show eligible count prominently
+            const eligibleCount = document.getElementById('eligibleCount');
+            if (excludedWinners && excludedWinners.length > 0) {
+                eligibleCount.style.display = 'block';
+                eligibleCount.innerHTML = `
+                    ✅ <strong>${participants.length}</strong> Eligible Participants in Draw<br>
+                    <span style="font-size: 0.9em;">✅ <strong>${participants.length}</strong> مشارك مؤهل في السحب</span>
+                `;
+            } else {
+                eligibleCount.style.display = 'none';
+            }
             
             const duplicatesInfo = document.getElementById('duplicatesInfo');
             let infoHtml = '';
@@ -1892,27 +1984,41 @@
                 let excludedHtml = `
                     <div class="excluded-winners-section">
                         <div class="excluded-winners-title">
-                            🚫 Excluded Previous Winners • الفائزون المستبعدون
+                            🚫 Excluded from Draw • مستبعدون من السحب
                         </div>
-                        <div style="font-size: 0.95em; color: #856404; margin-bottom: 15px;">
-                            The following participants won before and are excluded from this draw:
+                        <div style="font-size: 1em; color: #721c24; margin-bottom: 20px; font-weight: 600;">
+                            ${excludedWinners.length} participant${excludedWinners.length > 1 ? 's' : ''} excluded because they already won:
                             <br>
-                            <span style="direction: rtl; display: block;">المشاركون التاليون فازوا سابقاً وتم استبعادهم من هذا السحب:</span>
+                            <span style="direction: rtl; display: block; margin-top: 5px;">تم استبعاد ${excludedWinners.length} مشارك${excludedWinners.length > 1 ? 'ين' : ''} لأنهم فازوا سابقاً:</span>
                         </div>
                 `;
                 
                 excludedWinners.forEach((excluded, index) => {
                     excludedHtml += `
                         <div class="excluded-winner-item" style="animation-delay: ${index * 0.1}s">
-                            <div style="font-size: 1.5em;">🏆</div>
-                            <div class="excluded-winner-name">${excluded.name}</div>
-                            <div class="excluded-winner-badge">${excluded.wonOn}</div>
-                            <div class="excluded-winner-reason">Already Won • فاز سابقاً</div>
+                            <div class="excluded-winner-main">
+                                <div class="excluded-winner-icon">🚫</div>
+                                <div class="excluded-winner-name">${excluded.name}</div>
+                            </div>
+                            <div class="excluded-winner-message">
+                                <strong>${excluded.name}</strong> excluded as he/she is the Winner of <strong>${excluded.wonOn}</strong>
+                            </div>
+                            <div class="excluded-winner-message-ar">
+                                تم استبعاد <strong>${excluded.name}</strong> لأنه/لأنها الفائز في <strong>${excluded.wonOn}</strong>
+                            </div>
                         </div>
                     `;
                 });
                 
-                excludedHtml += `</div>`;
+                excludedHtml += `
+                    <div style="margin-top: 15px; padding: 15px; background: #f8d7da; border-radius: 8px; border-left: 4px solid #dc3545;">
+                        <strong style="color: #721c24;">⚠️ Important:</strong> These ${excludedWinners.length} person${excludedWinners.length > 1 ? 's are' : ' is'} <strong>NOT included</strong> in the draw animation below.
+                        <br>
+                        <span style="direction: rtl; display: block; margin-top: 8px; color: #721c24;">
+                            <strong>⚠️ مهم:</strong> هؤلاء الـ ${excludedWinners.length} مشارك${excludedWinners.length > 1 ? 'ين' : ''} <strong>غير مشمولين</strong> في السحب أدناه.
+                        </span>
+                    </div>
+                </div>`;
                 
                 if (duplicatesInfo.innerHTML) {
                     duplicatesInfo.innerHTML += excludedHtml;
@@ -1924,6 +2030,7 @@
             
             namesGrid.innerHTML = '';
             
+            // Only show eligible participants in the grid
             participants.forEach((participant, index) => {
                 const nameKey = Object.keys(participant).find(k => 
                     k.toLowerCase().includes('name') || k.toLowerCase().includes('اسم')
@@ -1937,10 +2044,17 @@
                 namesGrid.appendChild(nameItem);
             });
             
+            console.log(`✅ Draw will include ${participants.length} eligible participants`);
+            console.log(`🚫 Excluded ${excludedWinners ? excludedWinners.length : 0} previous winners`);
+            
             namesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function startDraw() {
+            // Verify only eligible participants are in the draw
+            console.log('🎲 Starting draw with', allParticipants.length, 'eligible participants');
+            console.log('✅ Previous winners are excluded from this draw');
+            
             namesSection.style.display = 'none';
             drawSection.style.display = 'block';
             drawBtn.disabled = true;
@@ -2029,6 +2143,9 @@
                     k.toLowerCase().includes('هاتف')
                 );
                 const mobileNumber = mobileKey ? String(winnerData[mobileKey]) : 'N/A';
+                
+                // Store BOTH original and normalized mobile for future comparisons
+                const normalizedMobile = normalizeMobileNumber(mobileNumber);
 
                 const leadKey = Object.keys(winnerData).find(k => 
                     k.toLowerCase().includes('lead') ||
@@ -2046,11 +2163,14 @@
                 const winnerObject = {
                     day: `Day ${selectedDay}`,
                     name: winnerName,
-                    mobile: mobileNumber,
+                    mobile: normalizedMobile || mobileNumber, // Store normalized for comparison
+                    originalMobile: mobileNumber, // Keep original for display
                     leadNumber: leadNumber,
                     projectInterest: projectInterest,
                     drawTimestamp: window.firestoreFunctions.serverTimestamp()
                 };
+
+                console.log('💾 Saving winner:', winnerName, 'Mobile (normalized):', normalizedMobile);
 
                 // Save to winners collection
                 const winnerDocRef = window.firestoreFunctions.doc(
@@ -2109,18 +2229,22 @@
             const winnerName = winnerData[nameKey] || winnerData.name || 'Winner';
             document.getElementById('winnerName').textContent = winnerName;
 
+            // Use originalMobile if available, otherwise use mobile
+            const displayMobile = winnerData.originalMobile || winnerData.mobile;
+            
             const mobileKey = Object.keys(winnerData).find(k => 
                 k.toLowerCase().includes('mobile') || 
                 k.toLowerCase().includes('phone') || 
                 k.toLowerCase().includes('جوال') ||
                 k.toLowerCase().includes('هاتف')
             );
-            if (mobileKey && winnerData[mobileKey]) {
+            
+            if (displayMobile) {
+                const maskedMobile = maskMobileNumber(displayMobile);
+                document.getElementById('mobileNumber').textContent = maskedMobile;
+            } else if (mobileKey && winnerData[mobileKey]) {
                 const fullMobile = String(winnerData[mobileKey]);
                 const maskedMobile = maskMobileNumber(fullMobile);
-                document.getElementById('mobileNumber').textContent = maskedMobile;
-            } else if (winnerData.mobile) {
-                const maskedMobile = maskMobileNumber(winnerData.mobile);
                 document.getElementById('mobileNumber').textContent = maskedMobile;
             }
 
@@ -2180,13 +2304,16 @@
             ) || Object.keys(selectedWinner)[0];
             const winnerName = selectedWinner[nameKey] || selectedWinner.name || 'Winner';
 
+            // Use originalMobile if available
+            const displayMobile = selectedWinner.originalMobile || selectedWinner.mobile;
+            
             const mobileKey = Object.keys(selectedWinner).find(k => 
                 k.toLowerCase().includes('mobile') || 
                 k.toLowerCase().includes('phone') || 
                 k.toLowerCase().includes('جوال') ||
                 k.toLowerCase().includes('هاتف')
             );
-            const mobileNumber = mobileKey ? selectedWinner[mobileKey] : (selectedWinner.mobile || 'N/A');
+            const mobileNumber = displayMobile || (mobileKey ? selectedWinner[mobileKey] : 'N/A') || 'N/A';
 
             const leadKey = Object.keys(selectedWinner).find(k => 
                 k.toLowerCase().includes('lead') ||
