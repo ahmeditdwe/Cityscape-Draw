@@ -1089,6 +1089,195 @@
             }
         }
 
+        /* Winner Modal Popup */
+        .winner-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: modalFadeIn 0.5s ease;
+        }
+
+        .winner-modal.show {
+            display: flex;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .winner-modal-content {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            padding: 60px 80px;
+            border-radius: 30px;
+            text-align: center;
+            position: relative;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow: visible;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: modalSlideUp 0.5s ease;
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(100px) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 300;
+            line-height: 1;
+        }
+
+        .modal-close-btn:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: rotate(90deg);
+        }
+
+        .modal-trophy {
+            font-size: 10em;
+            margin-bottom: 30px;
+            animation: bounce 2s infinite;
+        }
+
+        .modal-announcement {
+            font-size: 3em;
+            color: #1a1a1a;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .modal-announcement-ar {
+            font-size: 2.5em;
+            color: #1a1a1a;
+            font-weight: 700;
+            margin-bottom: 40px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .modal-winner-name {
+            font-size: 5em;
+            color: #1a1a1a;
+            font-weight: 700;
+            margin: 30px 0;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+            font-family: 'Poppins', 'Cairo', sans-serif;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            animation: pulseGlow 2s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        .modal-congrats {
+            font-size: 2.5em;
+            color: #1a1a1a;
+            font-weight: 700;
+            margin: 30px 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .modal-congrats-ar {
+            font-size: 2.2em;
+            color: #1a1a1a;
+            font-weight: 700;
+            margin-bottom: 40px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .modal-close-text {
+            font-size: 1.3em;
+            color: rgba(26, 26, 26, 0.8);
+            margin-top: 30px;
+            font-weight: 600;
+            animation: blink 2s infinite;
+            cursor: pointer;
+        }
+
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.5; }
+        }
+
+        @media (max-width: 768px) {
+            .winner-modal-content {
+                padding: 40px 30px;
+            }
+
+            .modal-trophy {
+                font-size: 6em;
+            }
+
+            .modal-announcement {
+                font-size: 2em;
+            }
+
+            .modal-announcement-ar {
+                font-size: 1.8em;
+            }
+
+            .modal-winner-name {
+                font-size: 3em;
+                padding: 20px;
+            }
+
+            .modal-congrats {
+                font-size: 1.8em;
+            }
+
+            .modal-congrats-ar {
+                font-size: 1.6em;
+            }
+
+            .modal-close-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5em;
+            }
+        }
+
         /* Large screens - compact layout */
         @media (min-width: 1200px) {
             .winner-card {
@@ -1274,7 +1463,8 @@
             .confetti,
             .logout-btn,
             .day-selector,
-            .previous-winners {
+            .previous-winners,
+            .winner-modal {
                 display: none !important;
             }
 
@@ -1309,6 +1499,22 @@
 </head>
 <body>
     <div class="particles" id="particles"></div>
+    
+    <!-- Winner Modal Popup -->
+    <div class="winner-modal" id="winnerModal">
+        <div class="winner-modal-content">
+            <button class="modal-close-btn" onclick="closeWinnerModal()">×</button>
+            <div class="modal-trophy">🏆</div>
+            <div class="modal-announcement">🎊 WINNER 🎊</div>
+            <div class="modal-announcement-ar">الفائز</div>
+            <div class="modal-winner-name" id="modalWinnerName">---</div>
+            <div class="modal-congrats">CONGRATULATIONS!</div>
+            <div class="modal-congrats-ar">مبروك!</div>
+            <div class="modal-close-text" onclick="closeWinnerModal()">
+                Click anywhere or press ESC to view details • اضغط في أي مكان لعرض التفاصيل
+            </div>
+        </div>
+    </div>
     
     <button class="logout-btn" id="logoutBtn" style="display:none;" onclick="handleLogout()">
         🚪 Logout • تسجيل الخروج
@@ -1502,10 +1708,10 @@
 
         // Configuration for draw days (Set these dates according to your schedule)
         const drawDaysConfig = {
-            day1: { date: '2025-11-17', name: 'Day 1' }, // Change to your actual date
-            day2: { date: '2025-11-18', name: 'Day 2' }, // Change to your actual date
-            day3: { date: '2025-11-19', name: 'Day 3' }, // Change to your actual date
-            day4: { date: '2025-11-20', name: 'Day 4' }  // Change to your actual date
+            day1: { date: '2025-11-12', name: 'Day 1' },
+            day2: { date: '2025-11-12', name: 'Day 2' },
+            day3: { date: '2025-11-12', name: 'Day 3' },
+            day4: { date: '2025-11-12', name: 'Day 4' }
         };
 
         // DOM Elements - Initialize early
@@ -1726,8 +1932,46 @@
             document.getElementById('drawSection').style.display = 'none';
             document.getElementById('winnerSection').style.display = 'block';
             
+            // Reset optional fields
+            document.getElementById('leadNumberRow').style.display = 'none';
+            document.getElementById('projectRow').style.display = 'none';
+            
             selectedWinner = dayData.winner;
+            
+            // Show modal for completed day winner
+            const nameKey = Object.keys(dayData.winner).find(k => 
+                k.toLowerCase().includes('name') || k.toLowerCase().includes('اسم')
+            ) || 'name';
+            const winnerName = dayData.winner[nameKey] || dayData.winner.name || 'Winner';
+            
+            showWinnerModal(winnerName);
             displayWinner(dayData.winner);
+        }
+
+        // Show winner modal popup
+        function showWinnerModal(winnerName) {
+            const modal = document.getElementById('winnerModal');
+            const modalWinnerName = document.getElementById('modalWinnerName');
+            
+            modalWinnerName.textContent = winnerName;
+            modal.classList.add('show');
+            
+            // Prevent body scroll when modal is open
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close winner modal
+        function closeWinnerModal() {
+            const modal = document.getElementById('winnerModal');
+            modal.classList.remove('show');
+            
+            // Restore body scroll
+            document.body.style.overflow = 'auto';
+            
+            // Scroll to winner section
+            setTimeout(() => {
+                winnerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
         }
 
         // Setup drag and drop functionality
@@ -1757,6 +2001,23 @@
                 const files = e.dataTransfer.files;
                 if (files.length > 0) {
                     handleFileUpload(files[0]);
+                }
+            });
+            
+            // Close modal when clicking outside or pressing ESC
+            const modal = document.getElementById('winnerModal');
+            
+            // Close on click outside modal content
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeWinnerModal();
+                }
+            });
+            
+            // Close on ESC key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal.classList.contains('show')) {
+                    closeWinnerModal();
                 }
             });
         }
@@ -1843,7 +2104,6 @@
                 
                 if (normalizedMobile && !seen.has(normalizedMobile)) {
                     seen.add(normalizedMobile);
-                    // Store normalized mobile in the participant object
                     participant._normalizedMobile = normalizedMobile;
                     uniqueParticipants.push(participant);
                 } else if (normalizedMobile && seen.has(normalizedMobile)) {
@@ -1857,11 +2117,9 @@
         // Helper function to normalize mobile numbers for comparison
         function normalizeMobileNumber(mobile) {
             if (!mobile) return null;
-            // Convert to string and remove all spaces, dashes, parentheses, and plus signs
             const cleaned = String(mobile).replace(/[\s\-\(\)\+]/g, '');
-            // Remove leading zeros and country codes
             const normalized = cleaned.replace(/^(00966|966|0+)/, '');
-            return normalized || cleaned; // Return cleaned if normalized is empty
+            return normalized || cleaned;
         }
 
         // Exclude previous winners from current participants
@@ -1881,7 +2139,6 @@
                 return { eligibleParticipants: participants, excludedWinners: [] };
             }
 
-            // Create a map of normalized mobile numbers to winner info
             const winnerMobilesMap = new Map();
             previousWinners.forEach(winner => {
                 const normalizedWinnerMobile = normalizeMobileNumber(winner.mobile);
@@ -1897,29 +2154,19 @@
                 const mobile = participant[mobileKey];
                 const normalizedMobile = participant._normalizedMobile || normalizeMobileNumber(mobile);
                 
-                console.log('Checking participant:', participant[nameKey], 'Mobile:', mobile, 'Normalized:', normalizedMobile);
-                
                 if (normalizedMobile && winnerMobilesMap.has(normalizedMobile)) {
-                    // This person is a previous winner - EXCLUDE them
                     const previousWinner = winnerMobilesMap.get(normalizedMobile);
-                    console.log('🚫 EXCLUDED:', participant[nameKey], 'Won on:', previousWinner.day);
                     excludedWinners.push({
                         name: participant[nameKey] || 'Unknown',
                         wonOn: previousWinner.day,
                         mobile: mobile
                     });
                 } else if (normalizedMobile) {
-                    // This person is eligible
-                    console.log('✅ ELIGIBLE:', participant[nameKey]);
                     eligibleParticipants.push(participant);
                 } else {
-                    // No mobile number - still include but log warning
-                    console.warn('⚠️ No mobile for:', participant[nameKey]);
                     eligibleParticipants.push(participant);
                 }
             });
-
-            console.log('📊 Final counts - Eligible:', eligibleParticipants.length, 'Excluded:', excludedWinners.length);
 
             return { eligibleParticipants, excludedWinners };
         }
@@ -1949,10 +2196,8 @@
             document.querySelector('.upload-section').style.display = 'none';
             namesSection.style.display = 'block';
             
-            // Show total eligible participants in the draw
             document.getElementById('totalCount').textContent = participants.length;
             
-            // Show eligible count prominently
             const eligibleCount = document.getElementById('eligibleCount');
             if (excludedWinners && excludedWinners.length > 0) {
                 eligibleCount.style.display = 'block';
@@ -1979,7 +2224,6 @@
                 duplicatesInfo.style.display = 'none';
             }
 
-            // Display excluded winners (previous winners)
             if (excludedWinners && excludedWinners.length > 0) {
                 let excludedHtml = `
                     <div class="excluded-winners-section">
@@ -2030,7 +2274,6 @@
             
             namesGrid.innerHTML = '';
             
-            // Only show eligible participants in the grid
             participants.forEach((participant, index) => {
                 const nameKey = Object.keys(participant).find(k => 
                     k.toLowerCase().includes('name') || k.toLowerCase().includes('اسم')
@@ -2044,17 +2287,10 @@
                 namesGrid.appendChild(nameItem);
             });
             
-            console.log(`✅ Draw will include ${participants.length} eligible participants`);
-            console.log(`🚫 Excluded ${excludedWinners ? excludedWinners.length : 0} previous winners`);
-            
             namesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function startDraw() {
-            // Verify only eligible participants are in the draw
-            console.log('🎲 Starting draw with', allParticipants.length, 'eligible participants');
-            console.log('✅ Previous winners are excluded from this draw');
-            
             namesSection.style.display = 'none';
             drawSection.style.display = 'block';
             drawBtn.disabled = true;
@@ -2123,7 +2359,14 @@
             
             setTimeout(() => {
                 drawSection.style.display = 'none';
+                
+                // Show modal popup first
+                showWinnerModal(selectedWinner[nameKey]);
+                
+                // Prepare winner card in background
                 displayWinner(selectedWinner);
+                
+                // Create confetti
                 createConfetti();
             }, 2000);
         }
@@ -2143,8 +2386,6 @@
                     k.toLowerCase().includes('هاتف')
                 );
                 const mobileNumber = mobileKey ? String(winnerData[mobileKey]) : 'N/A';
-                
-                // Store BOTH original and normalized mobile for future comparisons
                 const normalizedMobile = normalizeMobileNumber(mobileNumber);
 
                 const leadKey = Object.keys(winnerData).find(k => 
@@ -2163,14 +2404,12 @@
                 const winnerObject = {
                     day: `Day ${selectedDay}`,
                     name: winnerName,
-                    mobile: normalizedMobile || mobileNumber, // Store normalized for comparison
-                    originalMobile: mobileNumber, // Keep original for display
+                    mobile: normalizedMobile || mobileNumber,
+                    originalMobile: mobileNumber,
                     leadNumber: leadNumber,
                     projectInterest: projectInterest,
                     drawTimestamp: window.firestoreFunctions.serverTimestamp()
                 };
-
-                console.log('💾 Saving winner:', winnerName, 'Mobile (normalized):', normalizedMobile);
 
                 // Save to winners collection
                 const winnerDocRef = window.firestoreFunctions.doc(
@@ -2223,13 +2462,18 @@
         }
 
         function displayWinner(winnerData) {
+            // Reset optional fields
+            document.getElementById('leadNumberRow').style.display = 'none';
+            document.getElementById('projectRow').style.display = 'none';
+            document.getElementById('leadNumber').textContent = '---';
+            document.getElementById('projectInterest').textContent = '---';
+            
             const nameKey = Object.keys(winnerData).find(k => 
                 k.toLowerCase().includes('name') || k.toLowerCase().includes('اسم')
             ) || Object.keys(winnerData)[0];
             const winnerName = winnerData[nameKey] || winnerData.name || 'Winner';
             document.getElementById('winnerName').textContent = winnerName;
 
-            // Use originalMobile if available, otherwise use mobile
             const displayMobile = winnerData.originalMobile || winnerData.mobile;
             
             const mobileKey = Object.keys(winnerData).find(k => 
@@ -2274,7 +2518,6 @@
             }
 
             winnerSection.style.display = 'block';
-            winnerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function createConfetti() {
@@ -2304,7 +2547,6 @@
             ) || Object.keys(selectedWinner)[0];
             const winnerName = selectedWinner[nameKey] || selectedWinner.name || 'Winner';
 
-            // Use originalMobile if available
             const displayMobile = selectedWinner.originalMobile || selectedWinner.mobile;
             
             const mobileKey = Object.keys(selectedWinner).find(k => 
